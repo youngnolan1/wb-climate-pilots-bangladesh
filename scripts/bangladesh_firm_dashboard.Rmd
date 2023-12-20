@@ -18,10 +18,10 @@ library(ggplot2)
 ```{r}
 # Run scripts which cleans data and creates plotting functions
 setwd("C:/Users/young/OneDrive/Escritorio/wb-climate-pilots-bangladesh/scripts")
-source("firm_data_clean.R")
+source("2_firm_data_clean.R")
 
 setwd("C:/Users/young/OneDrive/Escritorio/wb-climate-pilots-bangladesh/scripts")
-source("climate_data_clean.R")
+source("3_climate_data_clean.R")
 ```
 
 
