@@ -36,8 +36,8 @@ sf_firms <- st_as_sf(firms,
                      crs = st_crs(country_and_subdivisions)) 
 
 # Assign firms to grids
-sf_joined <- st_join(sf_firms, 
-                     country_and_subdivisions,
+sf_joined <- st_join(country_and_subdivisions,
+                     sf_firms,
                      left = TRUE)
 
 # Save sf_joined to shapefile
