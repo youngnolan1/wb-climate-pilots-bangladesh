@@ -11,6 +11,7 @@
 
 library(dplyr)
 library(sf)
+library(matrixStats)
 library(leaflet)
 library(ggplot2)
 library(gridExtra)
@@ -33,28 +34,27 @@ not_needed <- c("X", "a2x", "a3ax", "size", "a7", "b6", "stra_sector", "b4", "b4
 climate <- climate %>% 
   select(-all_of(not_needed))
 
-# Create dataframe to store clean data, will merge results in
-climate_clean <- climate %>% 
-  select(idstd, lat_mask, lon_mask)
+# Replace NAs
+climate[climate == -99] <- NA
 
 
 #------------------------ 3. PRE/CURRENT/ENTIRE PERIOD -------------------------
 
 # Pre-period
-pre_period <- 1981:2019
+pre_period <- 2000:2010
 
 # Current period
-current_period <- 2020:2022
+current_period <- 2011:2021
 
 # Entire period
-entire_period <- 1981:2022
+entire_period <- 2000:2021
 
 
 #---------------------------- 4. GENERAL FUNCTIONS -----------------------------
 
 
-# METHOD: take yearly total e.g. hot days; find average up to 2019; find average of
-# 2020/21/22; compute change (keep all 3 columns)
+# METHOD: take yearly total e.g. hot days; find average of 2000-10; find average of
+# 2011-21; compute change
 
 
 # Function which subsets for given climate var
@@ -85,6 +85,29 @@ calculate_yearly_total <- function(climate_var_df, year) {
   return(result)
 }
 
+# Function which identifies yearly max for given year
+calculate_yearly_max <- function(climate_var_df, year) {
+  
+  # Subset to relevant year
+  relevant_cols <- c("idstd", grep(year, names(climate_var_df), value = TRUE))
+  varyear_df <- climate_var_df[, relevant_cols, drop = FALSE]
+  
+  year <- as.character(year)
+  
+  # Find max of all columns except idstd
+  matrix_data <- varyear_df[,-1]
+  row_max_values <- rowMaxs(as.matrix(matrix_data))
+  
+  # Add max to df
+  varyear_df[[year]] <- row_max_values
+  
+  # Drop the monthly columns
+  result <- varyear_df %>% 
+    select(idstd, !!year)
+  
+  return(result)
+}
+
 
 # Period means function
 period_means <- function(df){
@@ -104,9 +127,15 @@ percent_change <- function(df){
   return(result)
 } 
 
+# Calculate difference
+difference <- function(df){
+  result <- df %>% 
+    mutate(difference = current_mean - pre_mean)
+}
 
-# Function which puts it all together and merges with sf data
-climate_compute <- function(variable){
+
+# Putting it all together - yearly totals or max, avg by decade, % change
+yearlymetric_decadeavg_pcntchange <- function(variable, metric){
   
   # Subset to only climate var
   var_df <- climate_var_subset(variable)
@@ -114,7 +143,7 @@ climate_compute <- function(variable){
   
   # Calculate yearly totals for each year
   wrapper <- function(year) {
-    calculate_yearly_total(climate_var_df = var_df, year)
+    metric(climate_var_df = var_df, year)
   }
   
   var_totals <- lapply(entire_period, wrapper)
@@ -137,6 +166,8 @@ climate_compute <- function(variable){
     summarize(HeatVar = mean(percent_change))
 }
 
+
+# Climate-var-specific heatplot function (deals with negative values)
 heatplot_climate <- function(df, plot_title, legend_title){
   ggplot(df) +     
     geom_sf(aes(fill = HeatVar), size = 0.2) +     
@@ -149,25 +180,28 @@ heatplot_climate <- function(df, plot_title, legend_title){
 #------------------------------- 5. TEMPERATURE --------------------------------
 
 #Hotdays
-sf_hotdays <- climate_compute("hotdays")
+sf_hotdays <- yearlymetric_decadeavg_pcntchange("hotdays", calculate_yearly_total)
 
 #spei
-sf_spei <- climate_compute("spei")
+sf_spei <- yearlymetric_decadeavg_pcntchange("spei", calculate_yearly_total)
 
 
 #-------------------------------- 6. RAINFALL ----------------------------------
 
 #Cwd
-sf_cwd <- climate_compute("cwd")
+sf_cwd <- yearlymetric_decadeavg_pcntchange("cwd", calculate_yearly_max)
 
-#Precip
-sf_precip <- climate_compute("precip")
+#Precip - yearly total
+sf_precip <- yearlymetric_decadeavg_pcntchange("precip", calculate_yearly_total)
+
+#sf_precip <- yearly_extreme_decade_pcntchange_compute(WHICH VAR?)
 
 
 #------------------------------- 7. DROUGHT ------------------------------------
 
 #Drydays
-sf_drydays <- climate_compute("drydays")
+sf_drydays <- yearlymetric_decadeavg_pcntchange("drydays", calculate_yearly_total)
 
-#Precip
-sf_cdd <- climate_compute("cdd")
+#Cdd
+sf_cdd <- yearlymetric_decadeavg_pcntchange("cdd", calculate_yearly_max)
+

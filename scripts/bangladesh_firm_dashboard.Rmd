@@ -16,7 +16,8 @@ library(ggplot2)
 
 
 ```{r}
-# Run scripts which cleans data and creates plotting functions
+# CHANGE WORKING DIRECTORY HERE! In setwd() command
+# Run scripts which clean data and create plotting functions
 setwd("C:/Users/young/OneDrive/Escritorio/wb-climate-pilots-bangladesh/scripts")
 source("2_firm_data_clean.R")
 
@@ -60,37 +61,37 @@ Column {.tabset .tabset-fade data-width=500}
 ### Hot Days
 
 ```{r}
-heatplot_climate(sf_hotdays, "% Change in Average Yearly Number of Hot Days\nPre (1981-2019) to Current (2020-22) Period", NULL)
+heatplot_climate(sf_hotdays, "% Change in Average Yearly Number of Hot Days\nPre (2000-10) to Current (2011-21) Period", NULL)
 ```
 
 ### SPEI
 
 ```{r}
-heatplot_climate(sf_spei, "% Change in Average Yearly SPEI\nPre (1981-2019) to Current (2020-22) Period", NULL)
+heatplot_climate(sf_spei, "% Change in Average Yearly SPEI\nPre (2000-10) to Current (2011-21) Period", NULL)
 ```
 
 ### Consecutive Wet Days (5mm)
 
 ```{r}
-heatplot_climate(sf_cwd, "% Change in Average Yearly Number of Consecutive Wet Days\nPre (1981-2019) to Current (2020-22) Period", NULL)
+heatplot_climate(sf_cwd, "% Change in Average Yearly Maximum of\nConsecutive Wet Days - Pre (2000-10) to Current (2011-21) Period", NULL)
 ```
 
 ### Precipitation
 
 ```{r}
-heatplot_climate(sf_spei, "% Change in Average Yearly Precipitation\nPre (1981-2019) to Current (2020-22) Period", NULL)
+heatplot_climate(sf_spei, "% Change in Average Yearly Precipitation\nPre (2000-10) to Current (2011-21) Period", NULL)
 ```
 
 ### Dry Days
 
 ```{r}
-heatplot_climate(sf_cwd, "% Change in Average Yearly Number of Dry Days\nPre (1981-2019) to Current (2020-22) Period", NULL)
+heatplot_climate(sf_cwd, "% Change in Average Yearly Number of Dry Days\nPre (2000-10) to Current (2011-21) Period", NULL)
 ```
 
 ### Consecutive Dry Days (1mm)
 
 ```{r}
-heatplot_climate(sf_spei, "% Change in Average Yearly Number of Consecutive Dry Days\nPre (1981-2019) to Current (2020-22) Period", NULL)
+heatplot_climate(sf_spei, "% Change in Average Yearly Maximum of\nConsecutive Dry Days - Pre (2000-10) to Current (2011-21) Period", NULL)
 ```
 
 
@@ -119,37 +120,37 @@ Column {.tabset .tabset-fade data-width=500}
 ### Hot Days
 
 ```{r}
-heatplot_climate(sf_hotdays, "% Change in Average Yearly Number of Hot Days\nPre (1981-2019) to Current (2020-22) Period", NULL)
+heatplot_climate(sf_hotdays, "% Change in Average Yearly Number of Hot Days\nPre (2000-10) to Current (2011-21) Period", NULL)
 ```
 
 ### SPEI
 
 ```{r}
-heatplot_climate(sf_spei, "% Change in Average Yearly SPEI\nPre (1981-2019) to Current (2020-22) Period", NULL)
+heatplot_climate(sf_spei, "% Change in Average Yearly SPEI\nPre (2000-10) to Current (2011-21) Period", NULL)
 ```
 
 ### Consecutive Wet Days (5mm)
 
 ```{r}
-heatplot_climate(sf_cwd, "% Change in Average Yearly Number of Consecutive Wet Days\nPre (1981-2019) to Current (2020-22) Period", NULL)
+heatplot_climate(sf_cwd, "% Change in Average Yearly Maximum of\nConsecutive Wet Days - Pre (2000-10) to Current (2011-21) Period", NULL)
 ```
 
 ### Precipitation
 
 ```{r}
-heatplot_climate(sf_spei, "% Change in Average Yearly Precipitation\nPre (1981-2019) to Current (2020-22) Period", NULL)
+heatplot_climate(sf_spei, "% Change in Average Yearly Precipitation\nPre (2000-10) to Current (2011-21) Period", NULL)
 ```
 
 ### Dry Days
 
 ```{r}
-heatplot_climate(sf_cwd, "% Change in Average Yearly Number of Dry Days\nPre (1981-2019) to Current (2020-22) Period", NULL)
+heatplot_climate(sf_cwd, "% Change in Average Yearly Number of Dry Days\nPre (2000-10) to Current (2011-21) Period", NULL)
 ```
 
 ### Consecutive Dry Days (1mm)
 
 ```{r}
-heatplot_climate(sf_spei, "% Change in Average Yearly Number of Consecutive Dry Days\nPre (1981-2019) to Current (2020-22) Period", NULL)
+heatplot_climate(sf_spei, "% Change in Average Yearly Maximum of\nConsecutive Dry Days - Pre (2000-10) to Current (2011-21) Period", NULL)
 ```
 
 Sectors
@@ -220,35 +221,35 @@ Column {.tabset .tabset-fade data-width=500}
 ### Hot Days
 
 ```{r}
-heatplot_climate(sf_hotdays, "% Change in Average Yearly Number of Hot Days\nPre (1981-2019) to Current (2020-22) Period", NULL)
+heatplot_climate(sf_hotdays, "% Change in Average Yearly Number of Hot Days\nPre (2000-10) to Current (2011-21) Period", NULL)
 ```
 
 ### SPEI
 
 ```{r}
-heatplot_climate(sf_spei, "% Change in Average Yearly SPEI\nPre (1981-2019) to Current (2020-22) Period", NULL)
+heatplot_climate(sf_spei, "% Change in Average Yearly SPEI\nPre (2000-10) to Current (2011-21) Period", NULL)
 ```
 
 ### Consecutive Wet Days (5mm)
 
 ```{r}
-heatplot_climate(sf_cwd, "% Change in Average Yearly Number of Consecutive Wet Days\nPre (1981-2019) to Current (2020-22) Period", NULL)
+heatplot_climate(sf_cwd, "% Change in Average Yearly Maximum of\nConsecutive Wet Days - Pre (2000-10) to Current (2011-21) Period", NULL)
 ```
 
 ### Precipitation
 
 ```{r}
-heatplot_climate(sf_spei, "% Change in Average Yearly Precipitation\nPre (1981-2019) to Current (2020-22) Period", NULL)
+heatplot_climate(sf_spei, "% Change in Average Yearly Precipitation\nPre (2000-10) to Current (2011-21) Period", NULL)
 ```
 
 ### Dry Days
 
 ```{r}
-heatplot_climate(sf_cwd, "% Change in Average Yearly Number of Dry Days\nPre (1981-2019) to Current (2020-22) Period", NULL)
+heatplot_climate(sf_cwd, "% Change in Average Yearly Number of Dry Days\nPre (2000-10) to Current (2011-21) Period", NULL)
 ```
 
 ### Consecutive Dry Days (1mm)
 
 ```{r}
-heatplot_climate(sf_spei, "% Change in Average Yearly Number of Consecutive Dry Days\nPre (1981-2019) to Current (2020-22) Period", NULL)
+heatplot_climate(sf_spei, "% Change in Average Yearly Maximum of\nConsecutive Dry Days - Pre (2000-10) to Current (2011-21) Period", NULL)
 ```
