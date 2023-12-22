@@ -5,6 +5,7 @@ output:
     orientation: columns
     vertical_layout: fill
   output_dir: docs
+baseurl: "/wb-climate-pilots-bangladesh"
 ---
 
 ```{r setup, include=FALSE}
@@ -24,6 +25,9 @@ source("2_firm_data_clean.R")
 
 setwd("C:/Users/young/OneDrive/Escritorio/wb-climate-pilots-bangladesh/scripts")
 source("3_climate_data_clean.R")
+
+setwd("C:/Users/young/OneDrive/Escritorio/wb-climate-pilots-bangladesh/scripts")
+source("4_SMI19_business_directory_map.R")
 ```
 
 
@@ -33,7 +37,7 @@ Location
 Column {.tabset .tabset-fade data-width=500}
 -----------------------------------------------------------------------
 
-### Firm location
+### Firm location (Enterprise 2013)
 
 ```{r}
 leaflet(firms) %>%
@@ -50,11 +54,24 @@ leaflet(firms) %>%
                     ))
 ```
 
-### Number of firms in each grid
+### Number of firms in each grid (Enterprise 2013)
 
 ```{r}
 heatplot(sf_firm_count, NULL, NULL)
 ```
+
+### Number of firms in each grid (SMI 2019)
+
+```{r}
+heatplot(smi19_firm_count, NULL, NULL)
+```
+
+### Excluding Dhaka (SMI 2019)
+
+```{r}
+heatplot(smi19_firm_count_sans_dhaka, NULL, NULL)
+```
+
 
 Column {.tabset .tabset-fade data-width=500}
 -----------------------------------------------------------------------

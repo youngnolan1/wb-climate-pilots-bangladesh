@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# Script: firm_data_clean.R
+# Script: 2_firm_data_clean.R
 # Author: Nolan Young Zabala
 # Description: - set up Bangladesh grids
 #              - assign firms to grids
