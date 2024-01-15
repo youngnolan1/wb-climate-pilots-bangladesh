@@ -5,6 +5,7 @@ output:
     orientation: columns
     vertical_layout: fill
   output_dir: docs
+baseurl: "/wb-climate-pilots-bangladesh"
 ---
 
 ```{r setup, include=FALSE}
@@ -17,13 +18,22 @@ library(ggplot2)
 
 
 ```{r}
-# CHANGE WORKING DIRECTORY HERE! In setwd() command
+# ADJUST FILE PATH HERE
 # Run scripts which clean data and create plotting functions
-setwd("C:/Users/young/OneDrive/Escritorio/wb-climate-pilots-bangladesh/scripts")
-source("2_firm_data_clean.R")
+setwd("C:/Users/young/OneDrive/Escritorio/wb-climate-pilots-bangladesh")
+source("scripts/2_firm_data_clean.R")
 
-setwd("C:/Users/young/OneDrive/Escritorio/wb-climate-pilots-bangladesh/scripts")
-source("3_climate_data_clean.R")
+setwd("C:/Users/young/OneDrive/Escritorio/wb-climate-pilots-bangladesh")
+source("scripts/3_climate_data_clean.R")
+
+setwd("C:/Users/young/OneDrive/Escritorio/wb-climate-pilots-bangladesh")
+source("scripts/4_SMI19_business_directory_map.R")
+
+setwd("C:/Users/young/OneDrive/Escritorio/wb-climate-pilots-bangladesh")
+source("scripts/5_naturaldisaster_data_clean.R")
+
+setwd("C:/Users/young/OneDrive/Escritorio/wb-climate-pilots-bangladesh")
+source("scripts/SEZ_data_clean.R")
 ```
 
 
@@ -33,28 +43,55 @@ Location
 Column {.tabset .tabset-fade data-width=500}
 -----------------------------------------------------------------------
 
-### Firm location
+### Firm count for each grid (Enterprise 2013)
 
 ```{r}
-leaflet(firms) %>%
-  
-  addTiles() %>% 
-  
-  # Change map tiles so that locations shown in English
-  addProviderTiles(providers$OpenStreetMap.DE) %>% 
-  
-  addAwesomeMarkers(lng = ~lon_mask, lat = ~lat_mask,
-                    popup = ~paste("Region: ", a2x, "<br>",
-                                   "Sector: ", stra_sector, "<br>",
-                                   "Size: ", size
-                    ))
+heatplot(sf_firm_count, NULL, "Weighted proportion")
 ```
 
-### Number of firms in each grid
+### Firm count for each grid (SMI 2019)
 
 ```{r}
-heatplot(sf_firm_count, NULL, NULL)
+heatplot(smi19_firm_count, "Survey of Manufacturing Firms 2019", "Number of firms")
 ```
+
+### Firm count for each grid (SEZ 2021)
+
+```{r}
+heatplot(sez_firm_count, "SEZ Eastern Corridor 2021", "Number of firms")
+```
+
+### All sources together
+
+```{r}
+color_palette <- c("blue", "red")
+
+enterprise_icon <- makeIcon(
+  iconUrl = "scripts/marker-icon-blue.png",
+  iconWidth = 40, iconHeight = 40
+)
+
+sez_icon <- makeIcon(
+  iconUrl = "scripts/marker-icon-red.png",
+  iconWidth = 40, iconHeight = 40
+)
+
+
+leaflet(firm_combo) %>%
+  addTiles() %>%
+  addCircleMarkers(
+    ~Longitude, ~Latitude,
+    color = ~ifelse(id == 1, "red", "blue"),
+    radius = 0.1
+  ) %>%
+  addLegend(
+    title = "Source",
+    colors = color_palette,
+    labels = c("Enterprise", "SEZ"),
+    position = "bottomright"
+  )
+```
+
 
 Column {.tabset .tabset-fade data-width=500}
 -----------------------------------------------------------------------
@@ -62,37 +99,69 @@ Column {.tabset .tabset-fade data-width=500}
 ### Hot Days
 
 ```{r}
-heatplot_climate(sf_hotdays, "% Change in Average Yearly Number of Hot Days\nPre (2000-10) to Current (2011-21) Period", NULL)
+legend_title <- "Difference in weighted avg"
+
+heatplot_climate(sf_hotdays, "% Change in Average Yearly Number of Hot Days\nPre (2000-10) to Current (2011-21) Period", legend_title)
 ```
 
 ### SPEI
 
 ```{r}
-heatplot_climate(sf_spei, "% Change in Average Yearly SPEI\nPre (2000-10) to Current (2011-21) Period", NULL)
+heatplot_climate(sf_spei, "% Change in Average Yearly SPEI\nPre (2000-10) to Current (2011-21) Period", legend_title)
 ```
 
 ### Consecutive Wet Days (5mm)
 
 ```{r}
-heatplot_climate(sf_cwd, "% Change in Average Yearly Maximum of\nConsecutive Wet Days - Pre (2000-10) to Current (2011-21) Period", NULL)
+heatplot_climate(sf_cwd, "% Change in Average Yearly Maximum of\nConsecutive Wet Days - Pre (2000-10) to Current (2011-21) Period", legend_title)
 ```
 
 ### Precipitation
 
 ```{r}
-heatplot_climate(sf_spei, "% Change in Average Yearly Precipitation\nPre (2000-10) to Current (2011-21) Period", NULL)
+heatplot_climate(sf_precip, "% Change in Average Yearly Precipitation\nPre (2000-10) to Current (2011-21) Period", legend_title)
 ```
 
 ### Dry Days
 
 ```{r}
-heatplot_climate(sf_cwd, "% Change in Average Yearly Number of Dry Days\nPre (2000-10) to Current (2011-21) Period", NULL)
+heatplot_climate(sf_drydays, "% Change in Average Yearly Number of Dry Days\nPre (2000-10) to Current (2011-21) Period", legend_title)
 ```
 
 ### Consecutive Dry Days (1mm)
 
 ```{r}
-heatplot_climate(sf_spei, "% Change in Average Yearly Maximum of\nConsecutive Dry Days - Pre (2000-10) to Current (2011-21) Period", NULL)
+heatplot_climate(sf_cdd, "% Change in Average Yearly Maximum of\nConsecutive Dry Days - Pre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### Firms facing water availability issues
+
+```{r}
+heatplot(sf_water_availability, "Number of firms facing water availability\nissues in 2011-12", NULL)
+```
+
+### Number of disasters
+
+```{r}
+heatplot(sf_disaster_count, "Number of disasters 2000-2021", NULL)
+```
+
+### Disaster alert level
+
+```{r}
+heatplot_alert(sf_disaster_alert, "Average disaster alert level (green-1 /\norange-2 / red-3)", NULL)
+```
+
+### Disaster casualties
+
+```{r}
+heatplot(sf_disaster_casualties, "Total number of casualties 2000-2021", NULL)
+```
+
+### Displaced people
+
+```{r}
+heatplot(sf_disaster_displaced, "Total number of displaced people", "In thousands")
 ```
 
 
@@ -105,13 +174,13 @@ Column {.tabset .tabset-fade data-width=500}
 ### Average "size" (1-3 classification)
 
 ```{r}
-heatplot(sf_avgsize, NULL, NULL)
+heatplot(sf_avgsize, NULL, "Weighted average")
 ```
 
 ### Average number of employees 
 
 ```{r}
-heatplot(sf_avgnumemployees, NULL, NULL)
+heatplot(sf_avgnumemployees, NULL, "Weighted average")
 ```
 
 
@@ -121,38 +190,71 @@ Column {.tabset .tabset-fade data-width=500}
 ### Hot Days
 
 ```{r}
-heatplot_climate(sf_hotdays, "% Change in Average Yearly Number of Hot Days\nPre (2000-10) to Current (2011-21) Period", NULL)
+legend_title <- "Difference in weighted avg"
+
+heatplot_climate(sf_hotdays, "% Change in Average Yearly Number of Hot Days\nPre (2000-10) to Current (2011-21) Period", legend_title)
 ```
 
 ### SPEI
 
 ```{r}
-heatplot_climate(sf_spei, "% Change in Average Yearly SPEI\nPre (2000-10) to Current (2011-21) Period", NULL)
+heatplot_climate(sf_spei, "% Change in Average Yearly SPEI\nPre (2000-10) to Current (2011-21) Period", legend_title)
 ```
 
 ### Consecutive Wet Days (5mm)
 
 ```{r}
-heatplot_climate(sf_cwd, "% Change in Average Yearly Maximum of\nConsecutive Wet Days - Pre (2000-10) to Current (2011-21) Period", NULL)
+heatplot_climate(sf_cwd, "% Change in Average Yearly Maximum of\nConsecutive Wet Days - Pre (2000-10) to Current (2011-21) Period", legend_title)
 ```
 
 ### Precipitation
 
 ```{r}
-heatplot_climate(sf_spei, "% Change in Average Yearly Precipitation\nPre (2000-10) to Current (2011-21) Period", NULL)
+heatplot_climate(sf_precip, "% Change in Average Yearly Precipitation\nPre (2000-10) to Current (2011-21) Period", legend_title)
 ```
 
 ### Dry Days
 
 ```{r}
-heatplot_climate(sf_cwd, "% Change in Average Yearly Number of Dry Days\nPre (2000-10) to Current (2011-21) Period", NULL)
+heatplot_climate(sf_drydays, "% Change in Average Yearly Number of Dry Days\nPre (2000-10) to Current (2011-21) Period", legend_title)
 ```
 
 ### Consecutive Dry Days (1mm)
 
 ```{r}
-heatplot_climate(sf_spei, "% Change in Average Yearly Maximum of\nConsecutive Dry Days - Pre (2000-10) to Current (2011-21) Period", NULL)
+heatplot_climate(sf_cdd, "% Change in Average Yearly Maximum of\nConsecutive Dry Days - Pre (2000-10) to Current (2011-21) Period", legend_title)
 ```
+
+### Firms facing water availability issues
+
+```{r}
+heatplot(sf_water_availability, "Number of firms facing water availability\nissues in 2011-12", NULL)
+```
+
+### Number of disasters
+
+```{r}
+heatplot(sf_disaster_count, "Number of disasters 2000-2021", NULL)
+```
+
+### Disaster alert level
+
+```{r}
+heatplot_alert(sf_disaster_alert, "Average disaster alert level (green-1 /\norange-2 / red-3)", NULL)
+```
+
+### Disaster casualties
+
+```{r}
+heatplot(sf_disaster_casualties, "Total number of casualties 2000-2021", NULL)
+```
+
+### Displaced people
+
+```{r}
+heatplot(sf_disaster_displaced, "Total number of displaced people", "In thousands")
+```
+
 
 Sectors
 =======================================================================
@@ -160,61 +262,44 @@ Sectors
 Column {.tabset .tabset-fade data-width=500}
 -----------------------------------------------------------------------
 
-### Garments
+### Manufacturing
 
 ```{r}
-legend_title <- "Firms"
+legend_title <- "Weighted proportion"
 
-heatplot(sector_count("Garments"), NULL, legend_title)
+heatplot(sector_count("Manufacturing"), NULL, legend_title)
 ```
 
-### Other Manufacturing
+### Wholesale and retail trade
 
 ```{r}
-heatplot(sector_count("Other Manufacturing"), NULL, legend_title)
+heatplot(sector_count("Wholesale and retail trade"), NULL, legend_title)
 ```
 
-### Other Services
+### Transport, storage and communications
 
 ```{r}
-heatplot(sector_count("Other Services"), NULL, legend_title)
+heatplot(sector_count("Transport, storage and communications"), NULL, legend_title)
 ```
 
-### Chemicals
+### Real estate, renting and business activities
 
 ```{r}
-heatplot(sector_count("Chemicals & Chemical Products"), NULL, legend_title)
+heatplot(sector_count("Real estate, renting and business activities"), NULL, legend_title)
 ```
 
-### Transport Equip.
+### Construction
 
 ```{r}
-heatplot(sector_count("Motor Vehicles & Transport Equip."), NULL, legend_title)
+heatplot(sector_count("Construction"), NULL, legend_title)
 ```
 
-### Leather
+### Hotels and restaurants
 
 ```{r}
-heatplot(sector_count("Leather Products"), NULL, legend_title)
+heatplot(sector_count("Hotels and restaurants"), NULL, legend_title)
 ```
 
-### Food
-
-```{r}
-heatplot(sector_count("Food"), NULL, legend_title)
-```
-
-### Retail
-
-```{r}
-heatplot(sector_count("Retail"), NULL, legend_title)
-```
-
-### Furniture
-
-```{r}
-heatplot(sector_count("Furniture"), NULL, legend_title)
-```
 
 Column {.tabset .tabset-fade data-width=500}
 -----------------------------------------------------------------------
@@ -222,35 +307,67 @@ Column {.tabset .tabset-fade data-width=500}
 ### Hot Days
 
 ```{r}
-heatplot_climate(sf_hotdays, "% Change in Average Yearly Number of Hot Days\nPre (2000-10) to Current (2011-21) Period", NULL)
+legend_title <- "Difference in weighted avg"
+
+heatplot_climate(sf_hotdays, "% Change in Average Yearly Number of Hot Days\nPre (2000-10) to Current (2011-21) Period", legend_title)
 ```
 
 ### SPEI
 
 ```{r}
-heatplot_climate(sf_spei, "% Change in Average Yearly SPEI\nPre (2000-10) to Current (2011-21) Period", NULL)
+heatplot_climate(sf_spei, "% Change in Average Yearly SPEI\nPre (2000-10) to Current (2011-21) Period", legend_title)
 ```
 
 ### Consecutive Wet Days (5mm)
 
 ```{r}
-heatplot_climate(sf_cwd, "% Change in Average Yearly Maximum of\nConsecutive Wet Days - Pre (2000-10) to Current (2011-21) Period", NULL)
+heatplot_climate(sf_cwd, "% Change in Average Yearly Maximum of\nConsecutive Wet Days - Pre (2000-10) to Current (2011-21) Period", legend_title)
 ```
 
 ### Precipitation
 
 ```{r}
-heatplot_climate(sf_spei, "% Change in Average Yearly Precipitation\nPre (2000-10) to Current (2011-21) Period", NULL)
+heatplot_climate(sf_precip, "% Change in Average Yearly Precipitation\nPre (2000-10) to Current (2011-21) Period", legend_title)
 ```
 
 ### Dry Days
 
 ```{r}
-heatplot_climate(sf_cwd, "% Change in Average Yearly Number of Dry Days\nPre (2000-10) to Current (2011-21) Period", NULL)
+heatplot_climate(sf_drydays, "% Change in Average Yearly Number of Dry Days\nPre (2000-10) to Current (2011-21) Period", legend_title)
 ```
 
 ### Consecutive Dry Days (1mm)
 
 ```{r}
-heatplot_climate(sf_spei, "% Change in Average Yearly Maximum of\nConsecutive Dry Days - Pre (2000-10) to Current (2011-21) Period", NULL)
+heatplot_climate(sf_cdd, "% Change in Average Yearly Maximum of\nConsecutive Dry Days - Pre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### Firms facing water availability issues
+
+```{r}
+heatplot(sf_water_availability, "Number of firms facing water availability\nissues in 2011-12", NULL)
+```
+
+### Number of disasters
+
+```{r}
+heatplot(sf_disaster_count, "Number of disasters 2000-2021", NULL)
+```
+
+### Disaster alert level
+
+```{r}
+heatplot_alert(sf_disaster_alert, "Average disaster alert level (green-1 /\norange-2 / red-3)", NULL)
+```
+
+### Disaster casualties
+
+```{r}
+heatplot(sf_disaster_casualties, "Total number of casualties 2000-2021", NULL)
+```
+
+### Displaced people
+
+```{r}
+heatplot(sf_disaster_displaced, "Total number of displaced people", "In thousands")
 ```

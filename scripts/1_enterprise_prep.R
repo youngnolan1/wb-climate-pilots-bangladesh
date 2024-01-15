@@ -14,33 +14,33 @@ library(haven)
 library(dplyr)
 library(sf)
 
-# Set working directory 
-setwd("C:/Users/young/OneDrive/Escritorio/wb-climate-pilots-bangladesh/raw_data")
+# Set working directory - ADJUST FILE PATH HERE
+setwd("C:/Users/young/OneDrive/Escritorio/wb-climate-pilots-bangladesh")
 
 
 #-------------------------------- 2. LOAD DATA ---------------------------------
 
-# PERFORM ONCE AND NEVER AGAIN - SUBSET COMPREHENSIVE
-
+# --- PERFORM ONCE AND NEVER AGAIN - SUBSET COMPREHENSIVE
 # Comprehensive dataset
-# master <- read_dta("master_analysis.dta")
+# master <- read_dta("raw_data/master_analysis.dta")
 
 # bangla13 <- master %>% 
 #  filter(cy == 11) # Filter country var from comprehensive dataset
 
-#write.csv(bangla13, "Bangla_13.csv")
+#write.csv(bangla13, "raw_data/Bangla_13.csv")
 
 # Remove "master" from memory - don't need anymore and too big
 # rm(master)
+# ---
 
 # Load Bangladesh Enterprise Survey 2013
-bangla13 <- read.csv("Bangla_13.csv")
+bangla13 <- read.csv("raw_data/Bangla_13.csv")
 
 # Load shapefile for adding coordinates
-point <- read_sf("shapefiles/firm_pointfile.shp")
+point <- read_sf("raw_data/shapefiles/firm_pointfile.shp")
 
 # Load SPEI file
-spei <- read.csv("wld_cli_terraclimate_spei12_1959_2021_point.csv")
+spei <- read.csv("raw_data/wld_cli_terraclimate_spei12_1959_2021_point.csv")
 
 #------------------------ 3. ADD COORDINATES + SPEI ----------------------------
 
@@ -71,9 +71,9 @@ rm(spei)
 # Divide them up by type for ease of reference
 
 # Firm vars
-firm_location_vars <- c("idstd", "lat_mask", "lon_mask", "a2x", "a3ax")
+firm_location_vars <- c("idstd", "wt", "wt_rs", "lat_mask", "lon_mask", "a2x", "a3ax")
 firm_size_vars <- c("size", "a7", "b6")
-firm_sector_vars <- c("stra_sector")
+firm_sector_vars <- c("stra_sector", "isic")
 firm_gender_vars <- c("b4", "b4a")
 
 # Climate vars
@@ -104,16 +104,13 @@ bangla13_subset <- bangla13 %>%
 
 #---------------------- 5. WRITE INTERMEDIATE DATA FILES -----------------------
 
-# Set working directory for writing files
-setwd("C:/Users/young/OneDrive/Escritorio/wb-climate-pilots/intermediate_data")
-
 # Write bangla13_subset to csv
-write.csv(bangla13_subset, "Bangla13_FirmAndClimate.csv")
+#write.csv(bangla13_subset, "intermediate_data/Bangla13_FirmAndClimate.csv")
 
 # Subset to just firm vars and write to csv
 bangla13_just_firm <- bangla13_subset %>% 
   select(firm_location_vars, firm_size_vars, firm_sector_vars,
          firm_gender_vars)
 
-write.csv(bangla13_just_firm, "Bangla13_Firm.csv")
+#write.csv(bangla13_just_firm, "intermediate_data/Bangla13_Firm.csv")
 
