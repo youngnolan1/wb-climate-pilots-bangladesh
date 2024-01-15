@@ -3,4 +3,4 @@ Steps to produce Bangladesh firm dashboard:
      2. Install any required packages
      3. Click "Knit" - this will produce an HTML file with the dashboard
 
-"main" branch contains updated scripts; "gh-pages" branch contains updated index.html file which updates dashboard URL
+"gh-pages" branch contains scripts and index.html file which updates dashboard URL
