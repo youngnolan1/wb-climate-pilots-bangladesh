@@ -1,0 +1,302 @@
+---
+title: "Bangladesh 2019 Business Directory Sector Maps"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+  output_dir: docs
+baseurl: "/wb-climate-pilots-bangladesh"
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(dplyr)
+library(sf)
+library(ggplot2)
+```
+
+
+```{r}
+# ADJUST FILE PATH HERE
+# Run scripts which clean data and create plotting functions
+setwd("C:/Users/young/OneDrive/Escritorio/wb-climate-pilots-bangladesh")
+source("scripts/2_firm_data_clean.R")
+
+setwd("C:/Users/young/OneDrive/Escritorio/wb-climate-pilots-bangladesh")
+source("scripts/3_climate_data_clean.R")
+
+setwd("C:/Users/young/OneDrive/Escritorio/wb-climate-pilots-bangladesh")
+source("scripts/SMI19_sector_breakdown.R")
+```
+
+Sections
+=======================================================================
+
+Column {.tabset .tabset-fade data-width=500}
+-----------------------------------------------------------------------
+
+### All sectors
+
+```{r}
+legend_title <- "Count"
+
+heatplot(total_count, "All Sectors", legend_title)
+```
+
+### A
+
+```{r}
+heatplot(a_count, "Agriculture, forestry, & fishing", legend_title)
+```
+
+### B
+
+```{r}
+heatplot(b_count, "Mining & quarrying", legend_title)
+```
+
+### C
+
+```{r}
+heatplot(c_count, "Manufacturing", legend_title)
+```
+
+### D
+
+```{r}
+heatplot(d_count, "Electricity, gas, steam, AC supply", legend_title)
+```
+
+### E
+
+```{r}
+heatplot(e_count, "Water supply, sewerage, waste mgmt", legend_title)
+```
+
+### F
+
+```{r}
+heatplot(f_count, "Construction", legend_title)
+```
+
+### G 
+
+```{r}
+heatplot(g_count, "Wholesale/retail trade/repare motor vehicles", legend_title)
+```
+
+### H
+
+```{r}
+heatplot(h_count, "Transportation/storage", legend_title)
+```
+
+### I
+
+```{r}
+heatplot(i_count, "Accommodation & food services", legend_title)
+```
+
+### J
+
+```{r}
+heatplot(j_count, "Information & communication", legend_title)
+```
+
+### K
+
+```{r}
+heatplot(k_count, "Finance & insurance", legend_title)
+```
+
+### L
+
+```{r}
+heatplot(l_count, "Real estate", legend_title)
+```
+
+### M
+
+```{r}
+heatplot(m_count, "Professional, scientific & technical activities", legend_title)
+```
+
+### N
+
+```{r}
+heatplot(n_count, "Administrative & support service activities", legend_title)
+```
+
+### O
+
+```{r}
+heatplot(o_count, "Public admin & defence", legend_title)
+```
+
+### P
+
+```{r}
+heatplot(p_count, "Education", legend_title)
+```
+
+### Q
+
+```{r}
+heatplot(q_count, "Human health & social work", legend_title)
+```
+
+### R
+
+```{r}
+heatplot(r_count, "Arts, entertainment & recreation", legend_title)
+```
+
+### S
+
+```{r}
+heatplot(s_count, "Other service activities", legend_title)
+```
+
+### U
+
+```{r}
+heatplot(u_count, "Extraterritorial orgs & bodies", legend_title)
+```
+
+
+Column {.tabset .tabset-fade data-width=500}
+-----------------------------------------------------------------------
+
+### Hot Days
+
+```{r}
+legend_title <- "Difference in weighted avg"
+
+heatplot_climate(sf_hotdays, "Difference in Average Yearly Number of Hot Days\nPre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### Hot Days Volatility
+
+```{r}
+heatplot_climate(sf_hotdays_volatility, "Difference in Average Yearly St Dev of Hot Days\nPre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+
+### SPEI
+
+```{r}
+heatplot_climate(sf_spei, "Difference in Average Yearly SPEI\nPre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### Consecutive Wet Days (5mm)
+
+```{r}
+heatplot_climate(sf_cwd, "Difference in Average Yearly Maximum of\nConsecutive Wet Days - Pre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### Precipitation
+
+```{r}
+heatplot_climate(sf_precip, "Difference in Average Yearly Precipitation\nPre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### Precipitation Volatility
+
+```{r}
+heatplot_climate(sf_precip_volatility, "Difference in Average Yearly St Dev of Precipitation\nPre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### Dry Days
+
+```{r}
+heatplot_climate(sf_drydays, "Difference in Average Yearly Number of Dry Days\nPre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### Consecutive Dry Days (1mm)
+
+```{r}
+heatplot_climate(sf_cdd, "Difference in Average Yearly Maximum of\nConsecutive Dry Days - Pre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+
+Manufacturing Breakdown
+=======================================================================
+
+Column {.tabset .tabset-fade data-width=500}
+-----------------------------------------------------------------------
+
+### Textiles
+
+```{r}
+legend_title <- "Count"
+
+heatplot(textiles_count, "Textiles manufacturing", legend_title)
+```
+
+### Ready-made garments
+
+```{r}
+heatplot(garments_count, "Ready-made garments manufacturing", legend_title)
+```
+
+### Other manufacturing
+
+```{r}
+heatplot(rest_of_manufac_count, "Other manufacturing", legend_title)
+```
+
+
+
+Column {.tabset .tabset-fade data-width=500}
+-----------------------------------------------------------------------
+
+### Hot Days
+
+```{r}
+legend_title <- "Difference in weighted avg"
+
+heatplot_climate(sf_hotdays, "Difference in Average Yearly Number of Hot Days\nPre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### Hot Days Volatility
+
+```{r}
+heatplot_climate(sf_hotdays_volatility, "Difference in Average Yearly St Dev of Hot Days\nPre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+
+### SPEI
+
+```{r}
+heatplot_climate(sf_spei, "Difference in Average Yearly SPEI\nPre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### Consecutive Wet Days (5mm)
+
+```{r}
+heatplot_climate(sf_cwd, "Difference in Average Yearly Maximum of\nConsecutive Wet Days - Pre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### Precipitation
+
+```{r}
+heatplot_climate(sf_precip, "Difference in Average Yearly Precipitation\nPre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### Precipitation Volatility
+
+```{r}
+heatplot_climate(sf_precip_volatility, "Difference in Average Yearly St Dev of Precipitation\nPre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### Dry Days
+
+```{r}
+heatplot_climate(sf_drydays, "Difference in Average Yearly Number of Dry Days\nPre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### Consecutive Dry Days (1mm)
+
+```{r}
+heatplot_climate(sf_cdd, "Difference in Average Yearly Maximum of\nConsecutive Dry Days - Pre (2000-10) to Current (2011-21) Period", legend_title)
+```

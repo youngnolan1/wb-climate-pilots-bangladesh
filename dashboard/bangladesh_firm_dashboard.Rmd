@@ -1,0 +1,398 @@
+---
+title: "Bangladesh Maps"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+  output_dir: docs
+baseurl: "/wb-climate-pilots-bangladesh"
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(dplyr)
+library(sf)
+library(leaflet)
+library(ggplot2)
+```
+
+
+```{r}
+# ADJUST FILE PATH HERE
+# Run scripts which clean data and create plotting functions
+setwd("C:/Users/young/OneDrive/Escritorio/wb-climate-pilots-bangladesh")
+source("scripts/firm_climate_dashboard/2_firm_data_clean.R")
+
+setwd("C:/Users/young/OneDrive/Escritorio/wb-climate-pilots-bangladesh")
+source("scripts/firm_climate_dashboard/3_climate_data_clean.R")
+
+setwd("C:/Users/young/OneDrive/Escritorio/wb-climate-pilots-bangladesh")
+source("scripts/firm_climate_dashboard/4_SMI19_business_directory_map.R")
+
+setwd("C:/Users/young/OneDrive/Escritorio/wb-climate-pilots-bangladesh")
+source("scripts/firm_climate_dashboard/5_naturaldisaster_data_clean.R")
+
+setwd("C:/Users/young/OneDrive/Escritorio/wb-climate-pilots-bangladesh")
+source("scripts/firm_climate_dashboard/SEZ_data_clean.R")
+```
+
+
+Location
+=======================================================================
+
+Column {.tabset .tabset-fade data-width=500}
+-----------------------------------------------------------------------
+
+### Firm count for each grid (Enterprise 2013)
+
+```{r}
+heatplot(sf_firm_count, NULL, "Weighted proportion")
+```
+
+### Firm count for each grid (SMI 2019)
+
+```{r}
+heatplot(smi19_firm_count, "Survey of Manufacturing Firms 2019", "Number of firms")
+```
+
+### Firm count for each grid (SEZ 2021)
+
+```{r}
+heatplot(sez_firm_count, "SEZ Eastern Corridor 2021", "Number of firms")
+```
+
+### All sources together
+
+```{r}
+color_palette <- c("blue", "red")
+
+enterprise_icon <- makeIcon(
+  iconUrl = "scripts/marker-icon-blue.png",
+  iconWidth = 40, iconHeight = 40
+)
+
+sez_icon <- makeIcon(
+  iconUrl = "scripts/marker-icon-red.png",
+  iconWidth = 40, iconHeight = 40
+)
+
+
+leaflet(firm_combo) %>%
+  addTiles() %>%
+  addCircleMarkers(
+    ~Longitude, ~Latitude,
+    color = ~ifelse(id == 1, "red", "blue"),
+    radius = 0.1
+  ) %>%
+  addLegend(
+    title = "Source",
+    colors = color_palette,
+    labels = c("Enterprise", "SEZ"),
+    position = "bottomright"
+  )
+```
+
+
+Column {.tabset .tabset-fade data-width=500}
+-----------------------------------------------------------------------
+
+### Hot Days
+
+```{r}
+legend_title <- "Difference in weighted avg"
+
+heatplot_climate(sf_hotdays, "Difference in Average Yearly Number of Hot Days\nPre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### Hot Days Volatility
+
+```{r}
+heatplot_climate(sf_hotdays_volatility, "Difference in Average Yearly St Dev of Hot Days\nPre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+
+### SPEI
+
+```{r}
+heatplot_climate(sf_spei, "Difference in Average Yearly SPEI\nPre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### Consecutive Wet Days (5mm)
+
+```{r}
+heatplot_climate(sf_cwd, "Difference in Average Yearly Maximum of\nConsecutive Wet Days - Pre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### Precipitation
+
+```{r}
+heatplot_climate(sf_precip, "Difference in Average Yearly Precipitation\nPre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### Precipitation Volatility
+
+```{r}
+heatplot_climate(sf_precip_volatility, "Difference in Average Yearly St Dev of Precipitation\nPre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### Dry Days
+
+```{r}
+heatplot_climate(sf_drydays, "Difference in Average Yearly Number of Dry Days\nPre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### Consecutive Dry Days (1mm)
+
+```{r}
+heatplot_climate(sf_cdd, "Difference in Average Yearly Maximum of\nConsecutive Dry Days - Pre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### Firms facing water availability issues
+
+```{r}
+heatplot(sf_water_availability, "Number of firms facing water availability\nissues in 2011-12", NULL)
+```
+
+### Number of disasters
+
+```{r}
+heatplot(sf_disaster_count, "Number of disasters 2000-2021", NULL)
+```
+
+### Disaster alert level
+
+```{r}
+heatplot_alert(sf_disaster_alert, "Average disaster alert level (green-1 /\norange-2 / red-3)", NULL)
+```
+
+### Disaster casualties
+
+```{r}
+heatplot(sf_disaster_casualties, "Total number of casualties 2000-2021", NULL)
+```
+
+### Displaced people
+
+```{r}
+heatplot(sf_disaster_displaced, "Total number of displaced people", "In thousands")
+```
+
+
+Size
+=======================================================================
+
+Column {.tabset .tabset-fade data-width=500}
+-----------------------------------------------------------------------
+
+### Average "size" (1-3 classification)
+
+```{r}
+heatplot(sf_avgsize, NULL, "Weighted average")
+```
+
+### Average number of employees 
+
+```{r}
+heatplot(sf_avgnumemployees, NULL, "Weighted average")
+```
+
+
+Column {.tabset .tabset-fade data-width=500}
+-----------------------------------------------------------------------
+
+### Hot Days
+
+```{r}
+legend_title <- "Difference in weighted avg"
+
+heatplot_climate(sf_hotdays, "Difference in Average Yearly Number of Hot Days\nPre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### Hot Days Volatility
+
+```{r}
+heatplot_climate(sf_hotdays_volatility, "Difference in Average Yearly St Dev of Hot Days\nPre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### SPEI
+
+```{r}
+heatplot_climate(sf_spei, "Difference in Average Yearly SPEI\nPre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### Consecutive Wet Days (5mm)
+
+```{r}
+heatplot_climate(sf_cwd, "Difference in Average Yearly Maximum of\nConsecutive Wet Days - Pre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### Precipitation
+
+```{r}
+heatplot_climate(sf_precip, "Difference in Average Yearly Precipitation\nPre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### Dry Days
+
+```{r}
+heatplot_climate(sf_drydays, "Difference in Average Yearly Number of Dry Days\nPre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### Consecutive Dry Days (1mm)
+
+```{r}
+heatplot_climate(sf_cdd, "Difference in Average Yearly Maximum of\nConsecutive Dry Days - Pre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### Firms facing water availability issues
+
+```{r}
+heatplot(sf_water_availability, "Number of firms facing water availability\nissues in 2011-12", NULL)
+```
+
+### Number of disasters
+
+```{r}
+heatplot(sf_disaster_count, "Number of disasters 2000-2021", NULL)
+```
+
+### Disaster alert level
+
+```{r}
+heatplot_alert(sf_disaster_alert, "Average disaster alert level (green-1 /\norange-2 / red-3)", NULL)
+```
+
+### Disaster casualties
+
+```{r}
+heatplot(sf_disaster_casualties, "Total number of casualties 2000-2021", NULL)
+```
+
+### Displaced people
+
+```{r}
+heatplot(sf_disaster_displaced, "Total number of displaced people", "In thousands")
+```
+
+
+Sectors
+=======================================================================
+
+Column {.tabset .tabset-fade data-width=500}
+-----------------------------------------------------------------------
+
+### Manufacturing
+
+```{r}
+legend_title <- "Weighted proportion"
+
+heatplot(sector_count("Manufacturing"), NULL, legend_title)
+```
+
+### Wholesale and retail trade
+
+```{r}
+heatplot(sector_count("Wholesale and retail trade"), NULL, legend_title)
+```
+
+### Transport, storage and communications
+
+```{r}
+heatplot(sector_count("Transport, storage and communications"), NULL, legend_title)
+```
+
+### Real estate, renting and business activities
+
+```{r}
+heatplot(sector_count("Real estate, renting and business activities"), NULL, legend_title)
+```
+
+### Construction
+
+```{r}
+heatplot(sector_count("Construction"), NULL, legend_title)
+```
+
+### Hotels and restaurants
+
+```{r}
+heatplot(sector_count("Hotels and restaurants"), NULL, legend_title)
+```
+
+
+Column {.tabset .tabset-fade data-width=500}
+-----------------------------------------------------------------------
+
+### Hot Days
+
+```{r}
+legend_title <- "Difference in weighted avg"
+
+heatplot_climate(sf_hotdays, "Difference in Average Yearly Number of Hot Days\nPre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### Hot Days Volatility
+
+```{r}
+heatplot_climate(sf_hotdays_volatility, "Difference in Average Yearly St Dev of Hot Days\nPre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### SPEI
+
+```{r}
+heatplot_climate(sf_spei, "Difference in Average Yearly SPEI\nPre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### Consecutive Wet Days (5mm)
+
+```{r}
+heatplot_climate(sf_cwd, "Difference in Average Yearly Maximum of\nConsecutive Wet Days - Pre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### Precipitation
+
+```{r}
+heatplot_climate(sf_precip, "Difference in Average Yearly Precipitation\nPre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### Dry Days
+
+```{r}
+heatplot_climate(sf_drydays, "Difference in Average Yearly Number of Dry Days\nPre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### Consecutive Dry Days (1mm)
+
+```{r}
+heatplot_climate(sf_cdd, "Difference in Average Yearly Maximum of\nConsecutive Dry Days - Pre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### Firms facing water availability issues
+
+```{r}
+heatplot(sf_water_availability, "Number of firms facing water availability\nissues in 2011-12", NULL)
+```
+
+### Number of disasters
+
+```{r}
+heatplot(sf_disaster_count, "Number of disasters 2000-2021", NULL)
+```
+
+### Disaster alert level
+
+```{r}
+heatplot_alert(sf_disaster_alert, "Average disaster alert level (green-1 /\norange-2 / red-3)", NULL)
+```
+
+### Disaster casualties
+
+```{r}
+heatplot(sf_disaster_casualties, "Total number of casualties 2000-2021", NULL)
+```
+
+### Displaced people
+
+```{r}
+heatplot(sf_disaster_displaced, "Total number of displaced people", "In thousands")
+```

@@ -1,0 +1,102 @@
+---
+title: "Comparing Climate Metrics"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(dplyr)
+library(sf)
+library(ggplot2)
+```
+
+```{r}
+setwd("C:/Users/young/OneDrive/Escritorio/wb-climate-pilots-bangladesh")
+source("scripts/3_climate_data_clean.R")
+```
+
+Column {.tabset .tabset-fade data-width=500}
+-----------------------------------------------------------------------
+
+### Hot Days
+
+```{r}
+legend_title <- "Difference in weighted avg"
+
+heatplot_climate(sf_hotdays, "  Change in Average Yearly Number of Hot Days\nPre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### SPEI
+
+```{r}
+heatplot_climate(sf_spei, "  Change in Average Yearly SPEI\nPre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### Consecutive Wet Days (5mm)
+
+```{r}
+heatplot_climate(sf_cwd, "  Change in Average Yearly Maximum of\nConsecutive Wet Days - Pre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### Precipitation
+
+```{r}
+heatplot_climate(sf_precip, "  Change in Average Yearly Precipitation\nPre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### Dry Days
+
+```{r}
+heatplot_climate(sf_drydays, "  Change in Average Yearly Number of Dry Days\nPre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### Consecutive Dry Days (1mm)
+
+```{r}
+heatplot_climate(sf_cdd, "  Change in Average Yearly Maximum of\nConsecutive Dry Days - Pre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+
+Column {.tabset .tabset-fade data-width=500}
+-----------------------------------------------------------------------
+
+### Hot Days - Winsorized
+
+```{r}
+legend_title <- "Difference in weighted avg"
+
+heatplot_climate(sf_hotdays_w, "Change in Average Yearly Number of Hot Days\nPre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### SPEI - Winsorized
+
+```{r}
+heatplot_climate(sf_spei_w, "Change in Average Yearly SPEI\nPre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### Consecutive Wet Days (5mm) - Winsorized
+
+```{r}
+heatplot_climate(sf_cwd_w, "Change in Average Yearly Maximum of\nConsecutive Wet Days - Pre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### Precipitation - Winsorized
+
+```{r}
+heatplot_climate(sf_precip_w, "Change in Average Yearly Precipitation\nPre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### Dry Days - Winsorized
+
+```{r}
+heatplot_climate(sf_drydays_w, "Change in Average Yearly Number of Dry Days\nPre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### Consecutive Dry Days (1mm) - Winsorized
+
+```{r}
+heatplot_climate(sf_cdd_w, "Change in Average Yearly Maximum of\nConsecutive Dry Days - Pre (2000-10) to Current (2011-21) Period", legend_title)
+```

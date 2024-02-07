@@ -1,0 +1,374 @@
+---
+title: "Bangladesh Residual Analysis"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+  output_dir: docs
+baseurl: "/wb-climate-pilots-bangladesh"
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(dplyr)
+library(sf)
+library(ggplot2)
+```
+
+```{r}
+# Set working directory - ADJUST FILE PATH HERE
+setwd("C:/Users/young/OneDrive/Escritorio/wb-climate-pilots-bangladesh")
+source("scripts/2_firm_data_clean.R")
+
+setwd("C:/Users/young/OneDrive/Escritorio/wb-climate-pilots-bangladesh")
+source("scripts/3_climate_data_clean.R")
+
+setwd("C:/Users/young/OneDrive/Escritorio/wb-climate-pilots-bangladesh")
+source("scripts/5_naturaldisaster_data_clean.R")
+
+setwd("C:/Users/young/OneDrive/Escritorio/wb-climate-pilots-bangladesh")
+source("scripts/8_residual_quartile_map_prep.R")
+```
+
+
+Temperature
+=======================================================================
+
+Column {.tabset .tabset-fade data-width=500}
+-----------------------------------------------------------------------
+
+### Worst affected firms (Residual quartile 1)
+
+```{r}
+heatplot(temp_resid_quart1, NULL, "Weighted proportion")
+```
+
+### Worst affected firms excl Dhaka
+
+```{r}
+# Find Dhaka
+max_row_index <- which.max(temp_resid_quart1[["HeatVar"]])
+
+# Replace with NA
+temp_resid_quart1[max_row_index, "HeatVar"] <- NA
+ 
+# Plot
+heatplot(temp_resid_quart1, NULL, "Weighted proportion")
+
+```
+
+
+### Best performing firms (Residual quartile 4)
+
+```{r}
+heatplot(temp_resid_quart4, NULL, "Weighted proportion")
+```
+
+
+### Best performing firms excl Dhaka
+
+```{r}
+# Find Dhaka
+max_row_index <- which.max(temp_resid_quart4[["HeatVar"]])
+
+# Replace with NA
+temp_resid_quart4[max_row_index, "HeatVar"] <- NA
+
+# Plot
+heatplot(temp_resid_quart4, NULL, "Weighted proportion")
+```
+
+
+Column {.tabset .tabset-fade data-width=500}
+-----------------------------------------------------------------------
+
+### Hot Days
+
+```{r}
+legend_title <- "Weighted avg % change"
+
+heatplot_climate(sf_hotdays, "% Change in Average Yearly Number of Hot Days\nPre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### SPEI
+
+```{r}
+heatplot_climate(sf_spei, "% Change in Average Yearly SPEI\nPre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### Consecutive Wet Days (5mm)
+
+```{r}
+heatplot_climate(sf_cwd, "% Change in Average Yearly Maximum of\nConsecutive Wet Days - Pre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### Precipitation
+
+```{r}
+heatplot_climate(sf_precip, "% Change in Average Yearly Precipitation\nPre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### Dry Days
+
+```{r}
+heatplot_climate(sf_drydays, "% Change in Average Yearly Number of Dry Days\nPre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### Consecutive Dry Days (1mm)
+
+```{r}
+heatplot_climate(sf_cdd, "% Change in Average Yearly Maximum of\nConsecutive Dry Days - Pre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### Number of disasters
+
+```{r}
+heatplot(sf_disaster_count, "Number of disasters 2000-2021", NULL)
+```
+
+### Disaster alert level
+
+```{r}
+heatplot_alert(sf_disaster_alert, "Average disaster alert level (green-1 /\norange-2 / red-3)", NULL)
+```
+
+### Disaster casualties
+
+```{r}
+heatplot(sf_disaster_casualties, "Total number of casualties 2000-2021", NULL)
+```
+
+### Displaced people
+
+```{r}
+heatplot(sf_disaster_displaced, "Total number of displaced people", "In thousands")
+```
+
+
+Hot Days
+=======================================================================
+
+Column {.tabset .tabset-fade data-width=500}
+-----------------------------------------------------------------------
+
+### Worst affected firms (Residual quartile 1)
+
+```{r}
+heatplot(hotdays_resid_quart1, NULL, "Weighted proportion")
+```
+
+### Worst affected firms excl Dhaka
+
+```{r}
+# Find Dhaka
+max_row_index <- which.max(hotdays_resid_quart1[["HeatVar"]])
+
+# Replace with NA
+hotdays_resid_quart1[max_row_index, "HeatVar"] <- NA
+ 
+# Plot
+heatplot(hotdays_resid_quart1, NULL, "Weighted proportion")
+
+```
+
+
+### Best performing firms (Residual quartile 4)
+
+```{r}
+heatplot(hotdays_resid_quart4, NULL, "Weighted proportion")
+```
+
+
+### Best performing firms excl Dhaka
+
+```{r}
+# Find Dhaka
+max_row_index <- which.max(hotdays_resid_quart4[["HeatVar"]])
+
+# Replace with NA
+hotdays_resid_quart4[max_row_index, "HeatVar"] <- NA
+
+# Plot
+heatplot(hotdays_resid_quart4, NULL, "Weighted proportion")
+```
+
+
+Column {.tabset .tabset-fade data-width=500}
+-----------------------------------------------------------------------
+
+### Hot Days
+
+```{r}
+legend_title <- "Weighted avg % change"
+
+heatplot_climate(sf_hotdays, "% Change in Average Yearly Number of Hot Days\nPre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### SPEI
+
+```{r}
+heatplot_climate(sf_spei, "% Change in Average Yearly SPEI\nPre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### Consecutive Wet Days (5mm)
+
+```{r}
+heatplot_climate(sf_cwd, "% Change in Average Yearly Maximum of\nConsecutive Wet Days - Pre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### Precipitation
+
+```{r}
+heatplot_climate(sf_precip, "% Change in Average Yearly Precipitation\nPre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### Dry Days
+
+```{r}
+heatplot_climate(sf_drydays, "% Change in Average Yearly Number of Dry Days\nPre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### Consecutive Dry Days (1mm)
+
+```{r}
+heatplot_climate(sf_cdd, "% Change in Average Yearly Maximum of\nConsecutive Dry Days - Pre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### Number of disasters
+
+```{r}
+heatplot(sf_disaster_count, "Number of disasters 2000-2021", NULL)
+```
+
+### Disaster alert level
+
+```{r}
+heatplot_alert(sf_disaster_alert, "Average disaster alert level (green-1 /\norange-2 / red-3)", NULL)
+```
+
+### Disaster casualties
+
+```{r}
+heatplot(sf_disaster_casualties, "Total number of casualties 2000-2021", NULL)
+```
+
+### Displaced people
+
+```{r}
+heatplot(sf_disaster_displaced, "Total number of displaced people", "In thousands")
+```
+
+
+
+Precipitation
+=======================================================================
+
+Column {.tabset .tabset-fade data-width=500}
+-----------------------------------------------------------------------
+
+### Worst affected firms (Residual quartile 1)
+
+```{r}
+heatplot(precip_resid_quart1, NULL, "Weighted proportion")
+```
+
+### Worst affected firms excl Dhaka
+
+```{r}
+# Find Dhaka
+max_row_index <- which.max(precip_resid_quart1[["HeatVar"]])
+
+# Replace with NA
+precip_resid_quart1[max_row_index, "HeatVar"] <- NA
+ 
+# Plot
+heatplot(precip_resid_quart1, NULL, "Weighted proportion")
+
+```
+
+
+### Best performing firms (Residual quartile 4)
+
+```{r}
+heatplot(precip_resid_quart4, NULL, "Weighted proportion")
+```
+
+
+### Best performing firms excl Dhaka
+
+```{r}
+# Find Dhaka
+max_row_index <- which.max(precip_resid_quart4[["HeatVar"]])
+
+# Replace with NA
+precip_resid_quart4[max_row_index, "HeatVar"] <- NA
+
+# Plot
+heatplot(precip_resid_quart4, NULL, "Weighted proportion")
+```
+
+
+Column {.tabset .tabset-fade data-width=500}
+-----------------------------------------------------------------------
+
+### Hot Days
+
+```{r}
+legend_title <- "Weighted avg % change"
+
+heatplot_climate(sf_hotdays, "% Change in Average Yearly Number of Hot Days\nPre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### SPEI
+
+```{r}
+heatplot_climate(sf_spei, "% Change in Average Yearly SPEI\nPre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### Consecutive Wet Days (5mm)
+
+```{r}
+heatplot_climate(sf_cwd, "% Change in Average Yearly Maximum of\nConsecutive Wet Days - Pre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### Precipitation
+
+```{r}
+heatplot_climate(sf_precip, "% Change in Average Yearly Precipitation\nPre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### Dry Days
+
+```{r}
+heatplot_climate(sf_drydays, "% Change in Average Yearly Number of Dry Days\nPre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### Consecutive Dry Days (1mm)
+
+```{r}
+heatplot_climate(sf_cdd, "% Change in Average Yearly Maximum of\nConsecutive Dry Days - Pre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### Number of disasters
+
+```{r}
+heatplot(sf_disaster_count, "Number of disasters 2000-2021", NULL)
+```
+
+### Disaster alert level
+
+```{r}
+heatplot_alert(sf_disaster_alert, "Average disaster alert level (green-1 /\norange-2 / red-3)", NULL)
+```
+
+### Disaster casualties
+
+```{r}
+heatplot(sf_disaster_casualties, "Total number of casualties 2000-2021", NULL)
+```
+
+### Displaced people
+
+```{r}
+heatplot(sf_disaster_displaced, "Total number of displaced people", "In thousands")
+```
