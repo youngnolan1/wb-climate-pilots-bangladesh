@@ -1,0 +1,352 @@
+---
+title: "7_benchmarking_plots"
+output: html_document
+date: "2024-01-08"
+---
+
+Setup
+
+```{r, warning=FALSE, message=FALSE}
+# Load libraries
+library(dplyr)
+library(ggplot2)
+
+# Set working directory - ADJUST FILE PATH HERE
+setwd("C:/Users/young/OneDrive/Escritorio/wb-climate-pilots-bangladesh")
+
+# Load data
+bangla <- read.csv("intermediate_data/Bangla_ResidQuart.csv")
+```
+
+## Firm size (size)
+
+Small firms more adversely affected by temperature shocks
+
+```{r, warning=FALSE}
+# Absolute values
+# ggplot(bangla, aes(x = resid, weight = wt, fill = factor(size))) +
+#   geom_histogram(binwidth = 0.4, alpha = 0.4, position = "identity") +
+#   geom_vline(xintercept = 0, linetype = "dashed", color = "black", linewidth = 1) +  # Vertical reference line at 0
+#   scale_fill_manual(values = c("green", "blue", "red"),
+#                     name = "Size",
+#                     labels = c("Small", "Medium", "Large")) +
+#   labs(title = "Histogram of Residuals by Size",
+#        x = "Residuals",
+#        y = "Frequency") +
+#   theme_minimal()
+
+# Weighted density
+hist_plot <- function(climate_resid, climate_title){
+  climate_resid <- ensym(climate_resid)
+  
+  ggplot(bangla, aes(x = !!climate_resid, fill = factor(size), weight = wt)) +
+    geom_histogram(alpha = 0.4, position = "identity", stat = "density") +
+    geom_vline(xintercept = 0, linetype = "dashed", color = "black", linewidth = 1) +
+    scale_fill_manual(values = c("green", "blue", "red"),
+                      name = "Size",
+                      labels = c("Small", "Medium", "Large")) +
+    labs(title = paste0(climate_title, " - Residuals by Size"),
+         x = "Residuals",
+         y = "Density") +
+    theme_minimal()
+}
+
+hist_plot(temp_resid, "Temperature")
+
+hist_plot(hotdays_resid, "Hot Days")
+
+hist_plot(precip_resid, "Precipitation")
+```
+
+## Sector (stra_sector)
+
+Manufacturing firms slightly more adversely affected compared to all others
+
+*Question: better way of grouping sectors?*
+
+```{r, warning=FALSE}
+# Group sectors into manufacturing vs not
+bangla_subset <- bangla %>% 
+  mutate(new_sector = case_when(
+    stra_sector == "Other Manufacturing" ~ 0,
+    stra_sector != "Other Manufacturing" ~ 1
+  ))
+
+# Absolute values
+# ggplot(bangla_subset, aes(x = resid, weight = wt, fill = factor(new_sector))) +
+#   geom_histogram(binwidth = 0.4, alpha = 0.4, position = "identity") +
+#   geom_vline(xintercept = 0, linetype = "dashed", color = "black", linewidth = 1) +
+#   scale_fill_manual(values = c("blue", "red"),
+#                     name = "Manufacturing",
+#                     labels = c("Yes", "No")) +
+#   labs(title = "Histogram of Residuals by Sector",
+#        x = "Residuals",
+#        y = "Frequency") +
+#   theme_minimal()
+
+# Weighted density
+hist_plot <- function(climate_resid, climate_title){
+  climate_resid <- ensym(climate_resid)
+  
+  ggplot(bangla_subset, aes(x = !!climate_resid, fill = factor(new_sector), weight = wt)) +
+  geom_histogram(alpha = 0.4, position = "identity", stat = "density") +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "black", linewidth = 1) +
+  scale_fill_manual(values = c("blue", "red"),
+                    name = "Manufacturing",
+                    labels = c("Yes", "No")) +
+  labs(title = paste0(climate_title, " - Residuals by Sector"),
+       x = "Residuals",
+       y = "Density") +
+  theme_minimal()
+}
+
+hist_plot(temp_resid, "Temperature")
+
+hist_plot(hotdays_resid, "Hot Days")
+
+hist_plot(precip_resid, "Precipitation")
+```
+
+## Access to finance (k30)
+
+Firms with major/severe obstacles more adversely affected by temp shocks
+
+```{r, warning=FALSE}
+# Grouping: no obstacle = 0, minor/moderate = 1, major/severe = 2
+bangla_subset <- bangla %>% 
+  filter(k30 >= 0) %>% 
+  mutate(new_k30 = case_when(
+    k30 == 0 ~ 0,
+    k30 %in% c(1, 2) ~ 1,
+    k30 %in% c(3, 4) ~ 2
+  ))
+
+# Absolute values
+# ggplot(bangla_subset, aes(x = resid, fill = factor(new_k30), weight = wt)) +
+#   geom_histogram(binwidth = 0.4, alpha = 0.4, position = "identity", stat = "density") +
+#   geom_vline(xintercept = 0, linetype = "dashed", color = "black", linewidth = 1) +
+#   scale_fill_manual(values = c("green", "blue", "red"),
+#                     name = "Access to Finance",
+#                     labels = c("No obstacle", "Minor/Moderate obstacle", "Major/Severe obstacle")) +
+#   labs(title = "Histogram of Residuals by Access to Finance",
+#        x = "Residuals",
+#        y = "Frequency") +
+#   theme_minimal()
+
+
+# Weighted density
+hist_plot <- function(climate_resid, climate_title){
+  climate_resid <- ensym(climate_resid)
+  
+  ggplot(bangla_subset, aes(x = !!climate_resid, fill = factor(new_k30), weight = wt)) +
+    geom_histogram(alpha = 0.4, position = "identity", stat = "density") +
+    geom_vline(xintercept = 0, linetype = "dashed", color = "black", linewidth = 1) +
+    scale_fill_manual(values = c("green", "blue", "red"),
+                      name = "Access to Finance",
+                      labels = c("No obstacle", "Minor/Moderate obstacle", "Major/Severe obstacle")) +
+  labs(title = paste0(climate_title, " - Residuals by Access to Finance"),
+         x = "Residuals",
+         y = "Density") +
+    theme_minimal()
+}
+
+hist_plot(temp_resid, "Temperature")
+
+hist_plot(hotdays_resid, "Hot Days")
+
+hist_plot(precip_resid, "Precipitation")
+```
+
+## Firm age (b5)
+
+Young firms generally adversely affected
+
+```{r, warning=FALSE}
+# Firm age calculated as 2013 - b5 (year establishment began operations)
+bangla_subset <- bangla %>% 
+  filter(b5 >= 0) %>% 
+  mutate(firm_age = 2013 - b5) %>% 
+  mutate(firm_age_bucket = case_when(
+    between(firm_age, 0, 5) ~ 1,
+    between(firm_age, 6, 15) ~ 2,
+    firm_age >= 16 ~ 3,
+    
+  ))
+
+# Absolute values
+# ggplot(bangla_subset, aes(x = resid, weight = wt, fill = factor(firm_age_bucket))) +
+#   geom_histogram(binwidth = 0.4, alpha = 0.4, position = "identity") +
+#   geom_vline(xintercept = 0, linetype = "dashed", color = "black", linewidth = 1) +
+#   scale_fill_manual(values = c("green", "blue", "red"),
+#                     name = "Firm Age",
+#                     labels = c("0-5yrs", "6-15yrs", "Over 15yrs")) +
+#   labs(title = "Histogram of Residuals by Firm Age",
+#        x = "Residuals",
+#        y = "Frequency") +
+#   theme_minimal()
+
+
+# Weighted density
+hist_plot <- function(climate_resid, climate_title){
+  climate_resid <- ensym(climate_resid)
+  
+  ggplot(bangla_subset, aes(x = !!climate_resid, fill = factor(firm_age_bucket), weight = wt)) +
+    geom_histogram(alpha = 0.4, position = "identity", stat = "density") +
+    geom_vline(xintercept = 0, linetype = "dashed", color = "black", linewidth = 1) +
+    scale_fill_manual(values = c("green", "blue", "red"),
+                      name = "Firm Age",
+                      labels = c("0-5yrs", "6-15yrs", "Over 15yrs")) +
+    labs(title = paste0(climate_title, " - Residuals by Firm Age"),
+         x = "Residuals",
+         y = "Density") +
+    theme_minimal()
+}
+
+hist_plot(temp_resid, "Temperature")
+
+hist_plot(hotdays_resid, "Hot Days")
+
+hist_plot(precip_resid, "Precipitation")
+```
+
+## Female ownership (b4)
+
+Firms with at least one female owner seem to respond better to temp shocks
+
+```{r, warning=FALSE}
+# Using b4 - "are any owners female?"
+bangla_subset <- bangla %>% 
+  filter(b4 >= 0)
+
+# Absolute values
+# ggplot(bangla_subset, aes(x = resid, weight = wt, fill = factor(b4))) +
+#   geom_histogram(binwidth = 0.4, alpha = 0.4, position = "identity") +
+#   geom_vline(xintercept = 0, linetype = "dashed", color = "black", linewidth = 1) +
+#   scale_fill_manual(values = c("blue", "red"),
+#                     name = "Any owners female?",
+#                     labels = c("Yes", "No")) +
+#   labs(title = "Histogram of Residuals by Female Ownership",
+#        x = "Residuals",
+#        y = "Frequency") +
+#   theme_minimal()
+
+
+# Weighted density
+hist_plot <- function(climate_resid, climate_title){
+  climate_resid <- ensym(climate_resid)
+  
+  ggplot(bangla, aes(x = !!climate_resid, fill = factor(b4), weight = wt)) +
+    geom_histogram(alpha = 0.4, position = "identity", stat = "density") +
+    geom_vline(xintercept = 0, linetype = "dashed", color = "black", linewidth = 1) +
+    scale_fill_manual(values = c("blue", "red"),
+                      name = "Any owners female?",
+                      labels = c("Yes", "No")) +
+    labs(title = paste0(climate_title, " - Residuals by Female Ownership"),
+         x = "Residuals",
+         y = "Density") +
+    theme_minimal()
+  
+}
+
+hist_plot(temp_resid, "Temperature")
+
+hist_plot(hotdays_resid, "Hot Days")
+
+hist_plot(precip_resid, "Precipitation")
+```
+
+## Access to electricity (c30a) 
+
+Ambiguous results
+
+```{r, warning=FALSE}
+# Grouping: same as access to finance above
+bangla_subset <- bangla %>% 
+  filter(c30a >= 0) %>% 
+  mutate(new_c30a = case_when(
+    c30a == 0 ~ 0,
+    c30a %in% c(1, 2) ~ 1,
+    c30a %in% c(3, 4) ~ 2
+  ))
+  
+# Absolute values
+# ggplot(bangla_subset, aes(x = resid, weight = wt, fill = factor(new_c30a))) +
+#   geom_histogram(binwidth = 0.4, alpha = 0.4, position = "identity") +
+#   geom_vline(xintercept = 0, linetype = "dashed", color = "black", linewidth = 1) +
+#   scale_fill_manual(values = c("darkgreen", "blue", "red"),
+#                     name = "Access to Electricity",
+#                     labels = c("No obstacle", "Minor/Moderate obstacle", "Major/Severe obstacle")) +
+#   labs(title = "Histogram of Residuals by Access to Electricity",
+#        x = "Residuals",
+#        y = "Frequency") +
+#   theme_minimal()
+
+
+# Weighted density
+hist_plot <- function(climate_resid, climate_title){
+  climate_resid <- ensym(climate_resid)
+  
+  ggplot(bangla_subset, aes(x = !!climate_resid, fill = factor(new_c30a), weight = wt)) +
+    geom_histogram(alpha = 0.4, position = "identity", stat = "density") +
+    geom_vline(xintercept = 0, linetype = "dashed", color = "black", linewidth = 1) +
+    scale_fill_manual(values = c("green", "blue", "red"),
+                      name = "Access to Electricity",
+                      labels = c("No obstacle", "Minor/Moderate obstacle", "Major/Severe obstacle")) +
+    labs(title = paste0(climate_title, " - Residuals by Access to Electricity"),
+         x = "Residuals",
+         y = "Density") +
+    theme_minimal()
+}
+
+hist_plot(temp_resid, "Temperature")
+
+hist_plot(hotdays_resid, "Hot Days")
+
+hist_plot(precip_resid, "Precipitation")
+```
+
+## Insufficient water supply (c15)
+
+Strange result - firms which experienced insufficient water supply respond better to temperature shocks... only 66 firms answered "yes" though
+
+```{r, warning=FALSE}
+# Using c15 - did the establishment experience insufficient water supply for production in the last year?
+bangla_subset <- bangla %>% 
+  filter(c15 >= 0)
+
+# Absolute values
+# ggplot(bangla_subset, aes(x = resid, weight = wt, fill = factor(b4))) +
+#   geom_histogram(binwidth = 0.4, alpha = 0.4, position = "identity") +
+#   geom_vline(xintercept = 0, linetype = "dashed", color = "black", linewidth = 1) +
+#   scale_fill_manual(values = c("red", "blue"),
+#                     name = "Insufficient water supply?",
+#                     labels = c("Yes", "No")) +
+#   labs(title = "Histogram of Residuals by Water Supply Problems",
+#        x = "Residuals",
+#        y = "Frequency") +
+#   theme_minimal()
+
+
+# Weighted density
+hist_plot <- function(climate_resid, climate_title){
+  climate_resid <- ensym(climate_resid)
+  
+  ggplot(bangla, aes(x = !!climate_resid, fill = factor(b4), weight = wt)) +
+    geom_histogram(alpha = 0.4, position = "identity", stat = "density") +
+    geom_vline(xintercept = 0, linetype = "dashed", color = "black", linewidth = 1) +
+    scale_fill_manual(values = c("red", "blue"),
+                      name = "Insufficient water supply?",
+                      labels = c("Yes", "No")) +
+    labs(title = paste0(climate_title, " - Residuals by Water Supply Problems"),
+         x = "Residuals",
+         y = "Density") +
+    theme_minimal()
+}
+
+
+hist_plot(temp_resid, "Temperature")
+
+hist_plot(hotdays_resid, "Hot Days")
+
+hist_plot(precip_resid, "Precipitation")
+```

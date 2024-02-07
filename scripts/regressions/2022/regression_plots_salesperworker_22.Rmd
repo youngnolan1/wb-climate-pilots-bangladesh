@@ -1,0 +1,468 @@
+---
+title: "regression_plots_salesperworker"
+output: html_document
+date: "2024-02-01"
+---
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+setwd("C:/Users/young/OneDrive/Escritorio/wb-climate-pilots-bangladesh")
+source("scripts/2022/regressions_salesperworker_22.R")
+
+library(tidyr)
+library(patchwork)
+library(ggplot2)
+library(cowplot)
+```
+
+Regression details for reference:
+
+-   Standardized vars: "firm_age", "num_employees", "pcnt_owned_by_largest_owner", "manager_experience_yrs"
+
+-   Equation (or replace temp with climate var): lm(sales_per_worker ~ temp + temp:firm_age + temp:size + temp:pcnt_owned_by_largest_owner + temp:manager_experience_yrs +                 temp:top_manager_female + temp:majority_national_sales + temp:obstacle_electricity +                 temp:obstacle_transport + temp:obstacle_businesslicensing +                  temp:obstacle_accesstofinance + temp:obstacle_laborregulations +                   temp:checking_savings_account + firm_age + size + pcnt_owned_by_largest_owner +                    manager_experience_yrs + top_manager_female + majority_national_sales + obstacle_electricity + obstacle_transport + obstacle_businesslicensing + obstacle_accesstofinance + obstacle_laborregulations + checking_savings_account,
+                 data = reg_master,
+                 weights = wstrict)
+
+
+## Size
+
+```{r, echo=FALSE, warning=FALSE}
+# Define general function
+firm_var_plot  <- function(interactions_df, title_text){
+  size <- interactions_df[2:3,] %>%   
+  separate(var, into = c("vars", "category"), sep = "(?<=\\w)_(?=[A-Z])|(?<=[a-z])(?=[A-Z])")
+
+  plot <- ggplot(size, aes(category, coef)) + 
+    geom_hline(yintercept=0, lty=2, lwd=1, colour="grey50") +
+    geom_errorbar(aes(ymin=ci_lower, ymax=ci_upper, colour=category), 
+                  lwd=1, width=0) +
+    geom_point(size=3, aes(colour=category)) +
+    facet_grid(. ~ vars) +
+    coord_flip() +
+    guides(colour=FALSE) +
+    labs(title = title_text, x = "", y = "") +
+    theme_grey(base_size=15) +
+    theme(plot.title = element_text(hjust = 0.5, size = 12),
+          axis.title.x = element_text(size = 10),
+          axis.title.y = element_text(size = 10))
+  
+  return(plot)
+}
+
+# Create plots for each climate var using function
+temp_plot <- firm_var_plot(temp_interactions, "Temperature")
+tempvolatility_plot <- firm_var_plot(tempvolatility_interactions, "Temperature volatility")
+hotdays_plot <- firm_var_plot(hotdays_interactions, "Hot days")
+spei_plot <- firm_var_plot(spei_interactions, "SPEI")
+
+plot_list <- list(temp_plot, tempvolatility_plot, hotdays_plot, spei_plot)
+
+# Create axis plot
+y_lab <- 
+  ggplot() + 
+  annotate(geom = "text", x = 1, y = 1, label = "Category", angle = 90) +
+  coord_cartesian(clip = "off")+
+  theme_void()
+
+# Show in grid using patchwork
+y_lab + wrap_plots(plot_list, nrow = 2) + plot_layout(widths = c(0.05,1)) + plot_annotation(
+  caption = "Reference category: Large",
+  theme = theme(plot.caption = element_text(size = 11)))
+```
+
+
+## Age & Pcnt owned by largest owner
+
+```{r, echo=FALSE, warning=FALSE}
+# Define general function
+firm_var_plot  <- function(interactions_df, title_text){
+  age_owner <- interactions_df %>% 
+    filter(var %in% c("firm_age", "pcnt_owned_by_largest_owner")) %>% 
+    mutate(category = "")
+
+  plot <- ggplot(age_owner, aes(category, coef)) + 
+    geom_hline(yintercept=0, lty=2, lwd=1, colour="grey50") +
+    geom_errorbar(aes(ymin=ci_lower, ymax=ci_upper, colour=category), 
+                  lwd=1, width=0) +
+    geom_point(size=3, aes(colour=category)) +
+    facet_grid(. ~ var) +
+    coord_flip() +
+    guides(colour=FALSE) +
+    labs(title = title_text, x = "", y = "") +
+    theme_grey(base_size=15) +
+    theme(plot.title = element_text(hjust = 0.5))
+  
+  return(plot)
+}
+
+# Create plots for each climate var using function
+temp_plot <- firm_var_plot(temp_interactions, "Temperature")
+tempvolatility_plot <- firm_var_plot(tempvolatility_interactions, "Temperature volatility")
+hotdays_plot <- firm_var_plot(hotdays_interactions, "Hot days")
+spei_plot <- firm_var_plot(spei_interactions, "SPEI")
+
+plot_list <- list(temp_plot, tempvolatility_plot, hotdays_plot, spei_plot)
+
+# Show in grid using patchwork
+wrap_plots(plot_list, nrow = 2)
+```
+
+
+## Manager experience & Top manager female
+
+```{r, echo=FALSE, warning=FALSE}
+# Define general function
+firm_var_plot  <- function(interactions_df, title_text){
+  
+  management <- interactions_df[5:6,] %>%
+  mutate(category = "")
+
+  plot <- ggplot(management, aes(category, coef)) + 
+    geom_hline(yintercept=0, lty=2, lwd=1, colour="grey50") +
+    geom_errorbar(aes(ymin=ci_lower, ymax=ci_upper, colour=category), 
+                  lwd=1, width=0) +
+    geom_point(size=3, aes(colour=category)) +
+    facet_grid(. ~ var) +
+    coord_flip() +
+    guides(colour=FALSE) +
+    labs(title = title_text, x = "", y = "") +
+    theme_grey(base_size=15) +
+    theme(plot.title = element_text(hjust = 0.5, size = 12),
+          axis.title.x = element_text(size = 10),
+          axis.title.y = element_text(size = 10))
+  
+  return(plot)
+}
+
+# Create plots for each climate var using function
+temp_plot <- firm_var_plot(temp_interactions, "Temperature")
+tempvolatility_plot <- firm_var_plot(tempvolatility_interactions, "Temperature volatility")
+hotdays_plot <- firm_var_plot(hotdays_interactions, "Hot days")
+spei_plot <- firm_var_plot(spei_interactions, "SPEI")
+
+plot_list <- list(temp_plot, tempvolatility_plot, hotdays_plot, spei_plot)
+
+# Show in grid using patchwork
+wrap_plots(plot_list, nrow = 2)
+```
+
+
+## Majority sales national
+
+```{r, echo=FALSE, warning=FALSE}
+# Define general function
+firm_var_plot  <- function(interactions_df, title_text){
+  
+  majority_national_sales <- interactions_df[7,] %>%
+  mutate(category = "")
+  
+  plot <- ggplot(majority_national_sales, aes(category, coef)) + 
+    geom_hline(yintercept=0, lty=2, lwd=1, colour="grey50") +
+    geom_errorbar(aes(ymin=ci_lower, ymax=ci_upper, colour=category), 
+                  lwd=1, width=0) +
+    geom_point(size=3, aes(colour=category)) +
+    facet_grid(. ~ var) +
+    coord_flip() +
+    guides(colour=FALSE) +
+    labs(title = title_text, x = "", y = "") +
+    theme_grey(base_size=15) +
+    theme(plot.title = element_text(hjust = 0.5, size = 12),
+          axis.title.x = element_text(size = 10),
+          axis.title.y = element_text(size = 10))
+  
+  return(plot)
+}
+
+# Create plots for each climate var using function
+temp_plot <- firm_var_plot(temp_interactions, "Temperature")
+tempvolatility_plot <- firm_var_plot(tempvolatility_interactions, "Temperature volatility")
+hotdays_plot <- firm_var_plot(hotdays_interactions, "Hot days")
+spei_plot <- firm_var_plot(spei_interactions, "SPEI")
+
+plot_list <- list(temp_plot, tempvolatility_plot, hotdays_plot, spei_plot)
+
+# Show in grid using patchwork
+wrap_plots(plot_list, nrow = 2)
+```
+
+
+## Electricity - how much of an obstacle?
+
+```{r, echo=FALSE, warning=FALSE}
+# Define general function
+firm_var_plot  <- function(interactions_df, title_text){
+  
+  obstacle <- interactions_df[8:26,] %>% 
+    separate(var, into = c("vars", "category"), sep = "(?<=\\w)_(?=[A-Z])|(?<=[a-z])(?=[A-Z])") %>% 
+    mutate(category = gsub("Very", "VerySevere", category)) %>% 
+    mutate(vars = sub("obstacle_", "", vars)) %>% 
+    mutate(category = factor(category, levels = c("Minor", "Moderate", "Major", "VerySevere")))
+
+  plot <- ggplot(obstacle[1:4,], aes(category, coef)) + 
+    geom_hline(yintercept=0, lty=2, lwd=1, colour="grey50") +
+    geom_errorbar(aes(ymin=ci_lower, ymax=ci_upper, colour=category), 
+                  lwd=1, width=0) +
+    geom_point(size=3, aes(colour=category)) +
+    facet_grid(. ~ vars) +
+    coord_flip() +
+    guides(colour=FALSE) +
+    labs(title = title_text, x = "", y = "") +
+    theme_grey(base_size=15) +
+    theme(plot.title = element_text(hjust = 0.5))
+  
+  return(plot)
+}
+
+# Create plots for each climate var using function
+temp_plot <- firm_var_plot(temp_interactions, "Temperature")
+tempvolatility_plot <- firm_var_plot(tempvolatility_interactions, "Temperature volatility")
+hotdays_plot <- firm_var_plot(hotdays_interactions, "Hot days")
+spei_plot <- firm_var_plot(spei_interactions, "SPEI")
+
+plot_list <- list(temp_plot, tempvolatility_plot, hotdays_plot, spei_plot)
+
+# Create axis plot
+y_lab <- 
+  ggplot() + 
+  annotate(geom = "text", x = 1, y = 1, label = "Category", angle = 90) +
+  coord_cartesian(clip = "off")+
+  theme_void()
+
+# Show in grid using patchwork
+y_lab + wrap_plots(plot_list, nrow = 2) + plot_layout(widths = c(0.05, 1)) + plot_annotation(
+  caption = "Reference category: No",
+  theme = theme(plot.caption = element_text(size = 11)))
+```
+
+## Transport - how much of an obstacle?
+
+```{r, echo=FALSE, warning=FALSE}
+# Define general function
+firm_var_plot  <- function(interactions_df, title_text){
+  
+  obstacle <- interactions_df[8:26,] %>% 
+    separate(var, into = c("vars", "category"), sep = "(?<=\\w)_(?=[A-Z])|(?<=[a-z])(?=[A-Z])") %>% 
+    mutate(category = gsub("Very", "VerySevere", category)) %>% 
+    mutate(vars = sub("obstacle_", "", vars)) %>% 
+    mutate(category = factor(category, levels = c("Minor", "Moderate", "Major", "VerySevere")))
+
+  plot <- ggplot(obstacle[5:8,], aes(category, coef)) + 
+    geom_hline(yintercept=0, lty=2, lwd=1, colour="grey50") +
+    geom_errorbar(aes(ymin=ci_lower, ymax=ci_upper, colour=category), 
+                  lwd=1, width=0) +
+    geom_point(size=3, aes(colour=category)) +
+    facet_grid(. ~ vars) +
+    coord_flip() +
+    guides(colour=FALSE) +
+    labs(title = title_text, x = "", y = "") +
+    theme_grey(base_size=15) +
+    theme(plot.title = element_text(hjust = 0.5))
+  
+  return(plot)
+}
+
+# Create plots for each climate var using function
+temp_plot <- firm_var_plot(temp_interactions, "Temperature")
+tempvolatility_plot <- firm_var_plot(tempvolatility_interactions, "Temperature volatility")
+hotdays_plot <- firm_var_plot(hotdays_interactions, "Hot days")
+spei_plot <- firm_var_plot(spei_interactions, "SPEI")
+
+plot_list <- list(temp_plot, tempvolatility_plot, hotdays_plot, spei_plot)
+
+# Create axis plot
+y_lab <- 
+  ggplot() + 
+  annotate(geom = "text", x = 1, y = 1, label = "Category", angle = 90) +
+  coord_cartesian(clip = "off")+
+  theme_void()
+
+# Show in grid using patchwork
+y_lab + wrap_plots(plot_list, nrow = 2) + plot_layout(widths = c(0.05, 1)) + plot_annotation(
+  caption = "Reference category: No",
+  theme = theme(plot.caption = element_text(size = 11)))
+```
+
+
+## Business licensing - how much of an obstacle?
+
+```{r, echo=FALSE, warning=FALSE}
+# Define general function
+firm_var_plot  <- function(interactions_df, title_text){
+  
+  obstacle <- interactions_df[8:26,] %>% 
+    separate(var, into = c("vars", "category"), sep = "(?<=\\w)_(?=[A-Z])|(?<=[a-z])(?=[A-Z])") %>% 
+    mutate(category = gsub("Very", "VerySevere", category)) %>% 
+    mutate(vars = sub("obstacle_", "", vars)) %>% 
+    mutate(category = factor(category, levels = c("Minor", "Moderate", "Major", "VerySevere")))
+
+  plot <- ggplot(obstacle[9:12,], aes(category, coef)) + 
+    geom_hline(yintercept=0, lty=2, lwd=1, colour="grey50") +
+    geom_errorbar(aes(ymin=ci_lower, ymax=ci_upper, colour=category), 
+                  lwd=1, width=0) +
+    geom_point(size=3, aes(colour=category)) +
+    facet_grid(. ~ vars) +
+    coord_flip() +
+    guides(colour=FALSE) +
+    labs(title = title_text, x = "", y = "") +
+    theme_grey(base_size=15) +
+    theme(plot.title = element_text(hjust = 0.5))
+  
+  return(plot)
+}
+
+# Create plots for each climate var using function
+temp_plot <- firm_var_plot(temp_interactions, "Temperature")
+tempvolatility_plot <- firm_var_plot(tempvolatility_interactions, "Temperature volatility")
+hotdays_plot <- firm_var_plot(hotdays_interactions, "Hot days")
+spei_plot <- firm_var_plot(spei_interactions, "SPEI")
+
+plot_list <- list(temp_plot, tempvolatility_plot, hotdays_plot, spei_plot)
+
+# Create axis plot
+y_lab <- 
+  ggplot() + 
+  annotate(geom = "text", x = 1, y = 1, label = "Category", angle = 90) +
+  coord_cartesian(clip = "off")+
+  theme_void()
+
+# Show in grid using patchwork
+y_lab + wrap_plots(plot_list, nrow = 2) + plot_layout(widths = c(0.05, 1)) + plot_annotation(
+  caption = "Reference category: No",
+  theme = theme(plot.caption = element_text(size = 11)))
+```
+
+
+## Access to finance - how much of an obstacle?
+
+```{r, echo=FALSE, warning=FALSE}
+# Define general function
+firm_var_plot  <- function(interactions_df, title_text){
+  
+  obstacle <- interactions_df[8:26,] %>% 
+    separate(var, into = c("vars", "category"), sep = "(?<=\\w)_(?=[A-Z])|(?<=[a-z])(?=[A-Z])") %>% 
+    mutate(category = gsub("Very", "VerySevere", category)) %>% 
+    mutate(vars = sub("obstacle_", "", vars)) %>% 
+    mutate(category = factor(category, levels = c("Minor", "Moderate", "Major", "VerySevere")))
+
+  plot <- ggplot(obstacle[13:16,], aes(category, coef)) + 
+    geom_hline(yintercept=0, lty=2, lwd=1, colour="grey50") +
+    geom_errorbar(aes(ymin=ci_lower, ymax=ci_upper, colour=category), 
+                  lwd=1, width=0) +
+    geom_point(size=3, aes(colour=category)) +
+    facet_grid(. ~ vars) +
+    coord_flip() +
+    guides(colour=FALSE) +
+    labs(title = title_text, x = "", y = "") +
+    theme_grey(base_size=15) +
+    theme(plot.title = element_text(hjust = 0.5))
+  
+  return(plot)
+}
+
+# Create plots for each climate var using function
+temp_plot <- firm_var_plot(temp_interactions, "Temperature")
+tempvolatility_plot <- firm_var_plot(tempvolatility_interactions, "Temperature volatility")
+hotdays_plot <- firm_var_plot(hotdays_interactions, "Hot days")
+spei_plot <- firm_var_plot(spei_interactions, "SPEI")
+
+plot_list <- list(temp_plot, tempvolatility_plot, hotdays_plot, spei_plot)
+
+# Create axis plot
+y_lab <- 
+  ggplot() + 
+  annotate(geom = "text", x = 1, y = 1, label = "Category", angle = 90) +
+  coord_cartesian(clip = "off")+
+  theme_void()
+
+# Show in grid using patchwork
+y_lab + wrap_plots(plot_list, nrow = 2) + plot_layout(widths = c(0.05, 1)) + plot_annotation(
+  caption = "Reference category: No",
+  theme = theme(plot.caption = element_text(size = 11)))
+```
+
+
+## Labor regulations - how much of an obstacle?
+
+```{r, echo=FALSE, warning=FALSE}
+# Define general function
+firm_var_plot  <- function(interactions_df, title_text){
+  
+  obstacle <- interactions_df[8:26,] %>% 
+    separate(var, into = c("vars", "category"), sep = "(?<=\\w)_(?=[A-Z])|(?<=[a-z])(?=[A-Z])") %>% 
+    mutate(category = gsub("Very", "VerySevere", category)) %>% 
+    mutate(vars = sub("obstacle_", "", vars)) %>% 
+    mutate(category = factor(category, levels = c("Minor", "Moderate", "Major", "VerySevere")))
+
+  plot <- ggplot(obstacle[17,], aes(category, coef)) + 
+    geom_hline(yintercept=0, lty=2, lwd=1, colour="grey50") +
+    geom_errorbar(aes(ymin=ci_lower, ymax=ci_upper, colour=category), 
+                  lwd=1, width=0) +
+    geom_point(size=3, aes(colour=category)) +
+    facet_grid(. ~ vars) +
+    coord_flip() +
+    guides(colour=FALSE) +
+    labs(title = title_text, x = "", y = "") +
+    theme_grey(base_size=15) +
+    theme(plot.title = element_text(hjust = 0.5))
+  
+  return(plot)
+}
+
+# Create plots for each climate var using function
+temp_plot <- firm_var_plot(temp_interactions, "Temperature")
+tempvolatility_plot <- firm_var_plot(tempvolatility_interactions, "Temperature volatility")
+hotdays_plot <- firm_var_plot(hotdays_interactions, "Hot days")
+spei_plot <- firm_var_plot(spei_interactions, "SPEI")
+
+plot_list <- list(temp_plot, tempvolatility_plot, hotdays_plot, spei_plot)
+
+# Create axis plot
+y_lab <- 
+  ggplot() + 
+  annotate(geom = "text", x = 1, y = 1, label = "Category", angle = 90) +
+  coord_cartesian(clip = "off")+
+  theme_void()
+
+# Show in grid using patchwork
+y_lab + wrap_plots(plot_list, nrow = 2) + plot_layout(widths = c(0.05, 1)) + plot_annotation(
+  caption = "Reference category: No",
+  theme = theme(plot.caption = element_text(size = 11)))
+```
+
+
+## Firm has checking/savings account 
+
+```{r, echo=FALSE, warning=FALSE}
+# Define general function
+firm_var_plot  <- function(interactions_df, title_text){
+  
+  tax <- interactions_df[27,] %>%
+  mutate(category = "")
+
+  plot <- ggplot(tax, aes(category, coef)) + 
+    geom_hline(yintercept=0, lty=2, lwd=1, colour="grey50") +
+    geom_errorbar(aes(ymin=ci_lower, ymax=ci_upper, colour=category), 
+                  lwd=1, width=0) +
+    geom_point(size=3, aes(colour=category)) +
+    facet_grid(. ~ var) +
+    coord_flip() +
+    guides(colour=FALSE) +
+    labs(title = title_text, x = "", y = "") +
+    theme_grey(base_size=15) +
+    theme(plot.title = element_text(hjust = 0.5, size = 12),
+          axis.title.x = element_text(size = 10),
+          axis.title.y = element_text(size = 10))
+  
+  return(plot)
+}
+
+# Create plots for each climate var using function
+temp_plot <- firm_var_plot(temp_interactions, "Temperature")
+tempvolatility_plot <- firm_var_plot(tempvolatility_interactions, "Temperature volatility")
+hotdays_plot <- firm_var_plot(hotdays_interactions, "Hot days")
+spei_plot <- firm_var_plot(spei_interactions, "SPEI")
+
+plot_list <- list(temp_plot, tempvolatility_plot, hotdays_plot, spei_plot)
+
+# Show in grid using patchwork
+wrap_plots(plot_list, nrow = 2)
+```

@@ -1,0 +1,255 @@
+---
+title: "enterprise_firm_maps"
+output: html_document
+date: '2023-12-15'
+---
+
+### Bangladesh Enterprise Survey 2013 - Firm Maps
+
+<br>
+
+#### 1. Set up
+
+Load libraries
+
+```{r, warning=FALSE, message=FALSE}
+library(dplyr)
+library(sf)
+library(leaflet)
+library(ggplot2)
+library(gridExtra)
+```
+
+Load data
+
+```{r, warning=FALSE}
+# Set working directory
+setwd("C:/Users/young/OneDrive/Escritorio/wb-climate-pilots-bangladesh/intermediate_data")
+
+# Read csv file
+firms <- read.csv("Bangla13_Firm.csv")
+```
+
+<br>
+
+####  2. Bangladesh grids - set up
+
+Download Bangladesh country and sub-division outlines from GADM
+
+```{r, warning=FALSE} 
+setwd("C:/Users/young/OneDrive/Escritorio/wb-climate-pilots-bangladesh/raw_data/shapefiles")  
+
+country_and_subdivisions <- read_sf("gadm41_BGD_2.shp") %>%    
+  select(geometry) %>% 
+  mutate(grid_id = row_number())
+```
+
+Join this to the firm data - each firm is identified as falling within one of the sub-divisions.
+
+```{r} 
+sf_firms <- st_as_sf(firms, coords = c("lon_mask", "lat_mask"), crs = st_crs(country_and_subdivisions)) 
+
+sf_joined <- st_join(country_and_subdivisions, sf_firms, left = TRUE)
+```
+
+<br>
+
+####  3. General plot function
+
+```{r} 
+heatplot <- function(df, title){   
+  ggplot(df) +     
+    geom_sf(aes(fill = HeatVar), size = 0.2) +     
+    scale_fill_gradient(low = "lightblue", high = "darkblue") +     
+    theme_minimal() +     
+    labs(title = title,          
+         fill = NULL) 
+  }
+```
+
+<br>
+
+####  4. Firm location
+
+##### 4a. Basic map - firm pins, click for characteristics
+
+```{r}
+firm_map <- leaflet(firms) %>%
+  
+  addTiles() %>% 
+  
+  # Change map tiles so that locations shown in English
+  addProviderTiles(providers$OpenStreetMap.DE) %>% 
+  
+  addAwesomeMarkers(lng = ~lon_mask, lat = ~lat_mask,
+                    popup = ~paste("Region: ", a2x, "<br>",
+                            "Sector: ", stra_sector, "<br>",
+                            "Size: ", size
+                            ))
+
+firm_map
+```
+
+<br>
+
+#####  4b. Firm location - Count in each grid
+
+Prepare data
+
+```{r}
+# Set var to 1 to count
+sf_joined$idstd[!is.na(sf_joined$idstd)] <- 1
+
+# Group by grid and count
+sf_firm_count <- sf_joined %>% 
+    group_by(geometry) %>% 
+    summarize(HeatVar = sum(idstd))
+```
+
+Plot
+
+```{r}
+heatplot(sf_firm_count, "Number of firms in each grid")
+```
+
+<br>
+
+#### 5. Firm size
+
+##### 5a. Average "size" (1-3 classification)
+
+```{r}
+# Group by grid and find average
+sf_avgsize <- sf_joined %>% 
+    group_by(geometry) %>% 
+    summarize(HeatVar = mean(size))
+```
+
+<br>
+
+##### 5b. Average number of employees
+
+```{r}
+# Group by grid and find average
+sf_avgnumemployees <- sf_joined %>% 
+    group_by(geometry) %>% 
+    summarize(HeatVar = mean(b6))
+```
+
+<br>
+
+##### 5c. Firm size plots 
+
+```{r}
+# Create a list containing the two plots
+firm_size_plots <- list(
+  heatplot(sf_avgsize, "Average size"),
+  heatplot(sf_avgnumemployees, "Average number of employees")
+)
+
+# Arrange the two plots in a grid, side-by-side
+grid.arrange(grobs = firm_size_plots, ncol = 2)
+
+```
+
+<br>
+
+#### 6. Sectors
+
+What sectors are covered in the survey?
+```{r}
+sector_list <- unique(firms$stra_sector)
+
+print(sector_list)
+```
+
+
+##### 6a. Firm counts per sector
+
+Remove objects we don't need
+```{r, warning=FALSE} 
+rm(sf_avgnumemployees, sf_avgsize, sf_firm_count, sf_firms, firm_map, firm_size_plots)
+```
+
+Convert sf object to dataframe
+```{r} 
+df_joined <- st_drop_geometry(sf_joined)
+```
+
+Function to count firms in each sector per grid
+```{r}
+df_joined$idstd[!is.na(df_joined$idstd)] <- 1
+ 
+sector_count <- function(sector){
+  sector_sum <- df_joined %>% 
+    filter(stra_sector == sector) %>% 
+    group_by(grid_id) %>% 
+    mutate(HeatVar = sum(idstd)) %>% 
+    select(grid_id, HeatVar) %>% 
+    distinct()
+  
+  sector_result <- left_join(country_and_subdivisions, sector_sum, by = "grid_id")
+
+  return(sector_result)
+}
+```
+
+Function combining "sector_count" and "heatplot"
+```{r}
+sector_plot <- function(sector){
+  sector_df <- sector_count(sector)
+  
+  heatplot(sector_df, sector)
+}
+```
+
+
+Garments
+```{r}
+sector_plot("Garments")
+```
+
+Other Manufacturing
+```{r}
+sector_plot("Other Manufacturing")
+```
+
+
+Leather
+```{r}
+sector_plot("Leather Products")
+```
+
+Other Services
+```{r}
+sector_plot("Other Services")
+```
+
+
+Furniture
+```{r}
+sector_plot("Furniture")
+```
+
+Retail
+```{r}
+sector_plot("Retail")
+```
+
+
+Chemicals
+```{r}
+sector_plot("Chemicals & Chemical Products")
+```
+
+Food
+```{r}
+sector_plot("Food")
+```
+
+
+Motor Vehicles & Transport Equipment
+```{r}
+sector_plot("Motor Vehicles & Transport Equip.")
+```
+

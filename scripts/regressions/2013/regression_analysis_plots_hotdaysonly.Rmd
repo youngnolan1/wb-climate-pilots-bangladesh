@@ -1,0 +1,278 @@
+---
+title: "regression_analysis_plots_hotdaysonly"
+output: html_document
+date: "2024-01-24"
+---
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+#-------------------------------------------------------------------------------
+# Script: regression_analysis.R
+# Author: Nolan Young Zabala
+# Description: - prepare data
+#              - regress revenue on firm characteristics with interaction terms
+#              - standardize coefficients and plot them with confidence intervals
+#-------------------------------------------------------------------------------
+
+
+#---------------------------------- 1. SET UP ----------------------------------
+
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(fastDummies)
+library(QuantPsyc)
+
+# Set working directory - ADJUST FILE PATH HERE
+setwd("C:/Users/young/OneDrive/Escritorio/wb-climate-pilots-bangladesh")
+
+
+#-------------------------------- 2. LOAD DATA ---------------------------------
+
+master <- read.csv("raw_data/Bangla_13.csv")
+
+
+#----------------- 3. CALCULATE CLIMATE AND AGE VARS ---------------------------
+
+# HOTDAYS
+master$total_hotdays <- rowSums(master[, c("hotdays_m1", "hotdays_m2", "hotdays_m3", "hotdays_m4", 
+                                           "hotdays_m5", "hotdays_m6", "hotdays_m7", "hotdays_m8", 
+                                           "hotdays_m9", "hotdays_m10", "hotdays_m11", "hotdays_m12")])
+
+# AGE
+master$firm_age <- 2013 - master$b5
+
+#------------------------- 4. SUBSET TO REG VARS -------------------------------
+
+regvars <- c("log_rev", "total_hotdays", "firm_age",
+             "size", "a2x", "b3", "b7", "b7a", "e1", "c30a", "d30a", "d30b",
+             "j30c", "k30", "l30a", "wt")
+
+reg_master <- master %>% 
+  dplyr::select(all_of(regvars)) %>% 
+  rename(sampling_region = a2x) %>% 
+  rename(pcnt_owned_by_largest_owner = b3) %>% 
+  rename(manager_experience_yrs = b7) %>% 
+  rename(top_manager_female = b7a) %>% 
+  rename(market_served = e1) %>% 
+  rename(obstacle_electricity = c30a) %>% 
+  rename(obstacle_transport = d30a) %>% 
+  rename(obstacle_traderegulations = d30b) %>% 
+  rename(obstacle_businesslicensing = j30c) %>% 
+  rename(obstacle_accesstofinance = k30) %>% 
+  rename(obstacle_laborregulations = l30a)
+
+# Define NAs properly
+reg_master[reg_master == -9] <- NA
+reg_master[reg_master == -7] <- NA
+
+# Deal with categorical vars
+obstacle_mutate <- function(var){
+  reg_master <- reg_master %>% 
+    mutate(!!var := case_when(
+      !!sym(var) == 0 ~ "No",
+      !!sym(var) == 1 ~ "Minor",
+      !!sym(var) == 2 ~ "Moderate",
+      !!sym(var) == 3 ~ "Major",
+      !!sym(var) == 4 ~ "VerySevere"
+    ) %>% 
+    as.factor() %>% 
+    factor(levels = c("No", "Minor", "Moderate", "Major", "VerySevere"))
+    )
+}
+
+obstacle_vars <- c("obstacle_electricity", "obstacle_transport", "obstacle_traderegulations",
+                   "obstacle_businesslicensing", "obstacle_accesstofinance", "obstacle_laborregulations")
+
+for (var in obstacle_vars){
+  reg_master <- obstacle_mutate(var)
+}
+
+reg_master <- reg_master %>%
+  mutate(size = case_when(
+    size == 1 ~ "Small",
+    size == 2 ~ "Medium",
+    size == 3 ~ "Large"
+  ))
+reg_master$size <- as.factor(reg_master$size)
+
+
+reg_master$sampling_region <- as.factor(reg_master$sampling_region)
+
+reg_master <- reg_master %>%
+  mutate(market_served = case_when(
+    market_served == 1 ~ "Local",
+    market_served == 2 ~ "National",
+    market_served == 3 ~ "International"
+  ))
+reg_master$market_served <- as.factor(reg_master$market_served)
+
+
+# Re-code the binary vars to 0/1
+reg_master <- reg_master %>% 
+  mutate(top_manager_female = case_when(
+    top_manager_female == 1 ~ 1, # Yes, top manager is female
+    top_manager_female == 2 ~ 0  # No, not female
+  ))
+
+
+#------------------------- 5. RUN REGRESSION -----------------------------------
+
+# Drop log_rev NAs
+reg_master <- reg_master[complete.cases(reg_master$log_rev), ]
+
+# Standardize model inputs (but not categorical)
+standard_vars <- c("firm_age", "pcnt_owned_by_largest_owner", "manager_experience_yrs")
+
+reg_master[standard_vars] <- lapply(reg_master[standard_vars], function(x) x / sd(x, na.rm = TRUE))
+
+# HOT DAYS
+hotdays_model <- lm(log_rev ~ total_hotdays + total_hotdays:firm_age + total_hotdays:size + total_hotdays:sampling_region + total_hotdays:pcnt_owned_by_largest_owner + total_hotdays:manager_experience_yrs + total_hotdays:top_manager_female + total_hotdays:market_served + total_hotdays:obstacle_electricity + total_hotdays:obstacle_transport + total_hotdays:obstacle_traderegulations + total_hotdays:obstacle_businesslicensing + total_hotdays:obstacle_accesstofinance + total_hotdays:obstacle_laborregulations + firm_age + size + sampling_region + pcnt_owned_by_largest_owner + manager_experience_yrs + top_manager_female + market_served + obstacle_electricity + obstacle_transport + obstacle_traderegulations + obstacle_businesslicensing + obstacle_accesstofinance + obstacle_laborregulations, data = reg_master, weights = wt)
+
+#----------------- 6. PREPARE COEFS AND CONFIDENCE INTERVALS -------------------
+
+# HOT DAYS
+hotdays_model_results <- data.frame(coef = coef(hotdays_model), ci_lower = confint(hotdays_model)[, 1], ci_upper = confint(hotdays_model)[, 2])
+
+hotdays_interactions <- hotdays_model_results[grepl(":", rownames(hotdays_model_results)), ]
+rownames(hotdays_interactions) <- sub("^total_hotdays:", "", rownames(hotdays_interactions))
+
+hotdays_interactions$var <- rownames(hotdays_interactions)
+rownames(hotdays_interactions) <- 1:nrow(hotdays_interactions)
+```
+
+Regression details for reference:
+
+-   Standardized vars: "firm_age", "num_employees", "pcnt_owned_by_largest_owner", "manager_experience_yrs"
+
+-   Equation: temp_model <- lm(log_rev ~ total_hotdays + total_hotdays:firm_age + total_hotdays:size + total_hotdays:sampling_region + total_hotdays:pcnt_owned_by_largest_owner + total_hotdays:manager_experience_yrs + total_hotdays:top_manager_female + total_hotdays:market_served + total_hotdays:obstacle_electricity + total_hotdays:obstacle_transport + total_hotdays:obstacle_traderegulations + total_hotdays:obstacle_businesslicensing + total_hotdays:obstacle_accesstofinance + total_hotdays:obstacle_laborregulations + firm_age + size + sampling_region + pcnt_owned_by_largest_owner + manager_experience_yrs + top_manager_female + market_served + obstacle_electricity + obstacle_transport + obstacle_traderegulations + obstacle_businesslicensing + obstacle_accesstofinance + obstacle_laborregulations, data = reg_master)
+
+
+```{r, echo=FALSE, warning=FALSE}
+# HOTDAYS
+size <- hotdays_interactions[2:3,] %>%   
+  separate(var, into = c("vars", "category"), sep = "(?<=\\w)_(?=[A-Z])|(?<=[a-z])(?=[A-Z])")
+
+ggplot(size, aes(category, coef)) + 
+  geom_hline(yintercept=0, lty=2, lwd=1, colour="grey50") +
+  geom_errorbar(aes(ymin=ci_lower, ymax=ci_upper, colour=category), 
+                lwd=1, width=0) +
+  geom_point(size=3, aes(colour=category)) +
+  facet_grid(. ~ vars) +
+  coord_flip() +
+  guides(colour=FALSE) +
+  labs(title = "Size - Hot days", x = "Category (Reference: Large)", y = "Coefficient") +
+  theme_grey(base_size=15) +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+
+```{r, echo=FALSE}
+# HOTDAYS
+region <- hotdays_interactions[4:6,] %>% 
+  separate(var, into = c("vars", "category"), sep = "(?<=\\w)_(?=[A-Z])|(?<=[a-z])(?=[A-Z])")
+
+ggplot(region, aes(category, coef)) + 
+  geom_hline(yintercept=0, lty=2, lwd=1, colour="grey50") +
+  geom_errorbar(aes(ymin=ci_lower, ymax=ci_upper, colour=category), 
+                lwd=1, width=0) +
+  geom_point(size=3, aes(colour=category)) +
+  facet_grid(. ~ vars) +
+  coord_flip() +
+  guides(colour=FALSE) +
+  labs(title = "Location - Hot days", x = "Category (Reference: Chattogram)", y = "Coefficient") +
+  theme_grey(base_size=15) +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+
+```{r, echo=FALSE}
+# HOTDAYS
+age_owner <- hotdays_interactions %>% 
+  filter(var %in% c("firm_age", "pcnt_owned_by_largest_owner")) %>% 
+  mutate(category = "")
+
+ggplot(age_owner, aes(category, coef)) + 
+  geom_hline(yintercept=0, lty=2, lwd=1, colour="grey50") +
+  geom_errorbar(aes(ymin=ci_lower, ymax=ci_upper, colour=category), 
+                lwd=1, width=0) +
+  geom_point(size=3, aes(colour=category)) +
+  facet_grid(. ~ var) +
+  coord_flip() +
+  guides(colour=FALSE) +
+  labs(title = "Age and ownership - Hot days", x = "", y = "Coefficient") +
+  theme_grey(base_size=15) +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+
+```{r, echo=FALSE}
+# HOTDAYS
+management <- hotdays_interactions[8:9,] %>% 
+  mutate(category = "")
+
+ggplot(management, aes(category, coef)) + 
+  geom_hline(yintercept=0, lty=2, lwd=1, colour="grey50") +
+  geom_errorbar(aes(ymin=ci_lower, ymax=ci_upper, colour=category), 
+                lwd=1, width=0) +
+  geom_point(size=3, aes(colour=category)) +
+  facet_grid(. ~ var) +
+  coord_flip() +
+  guides(colour=FALSE) +
+  labs(title = "Management - Hot days", x = "", y = "Coefficient") +
+  theme_grey(base_size=15) +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+
+```{r, echo=FALSE}
+# HOTDAYS
+market_served <- hotdays_interactions[10:11,] %>% 
+  separate(var, into = c("vars", "category"), sep = "(?<=\\w)_(?=[A-Z])|(?<=[a-z])(?=[A-Z])")
+
+ggplot(market_served, aes(category, coef)) + 
+  geom_hline(yintercept=0, lty=2, lwd=1, colour="grey50") +
+  geom_errorbar(aes(ymin=ci_lower, ymax=ci_upper, colour=category), 
+                lwd=1, width=0) +
+  geom_point(size=3, aes(colour=category)) +
+  facet_grid(. ~ vars) +
+  coord_flip() +
+  guides(colour=FALSE) +
+  labs(title = "Main market served - Hot days", x = "Category (Reference: International)", y = "Coefficient") +
+  theme_grey(base_size=15) +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+
+```{r, echo=FALSE, warning=FALSE}
+# HOT DAYS
+obstacle <- hotdays_interactions[12:35,] %>% 
+  separate(var, into = c("vars", "category"), sep = "(?<=\\w)_(?=[A-Z])|(?<=[a-z])(?=[A-Z])") %>% 
+  mutate(category = gsub("Very", "VerySevere", category)) %>% 
+  mutate(vars = sub("obstacle_", "", vars)) %>% 
+  mutate(category = factor(category, levels = c("Minor", "Moderate", "Major", "VerySevere")))
+
+ggplot(obstacle[1:12,], aes(category, coef)) + 
+  geom_hline(yintercept=0, lty=2, lwd=1, colour="grey50") +
+  geom_errorbar(aes(ymin=ci_lower, ymax=ci_upper, colour=category), 
+                lwd=1, width=0) +
+  geom_point(size=3, aes(colour=category)) +
+  facet_grid(. ~ vars) +
+  coord_flip() +
+  guides(colour=FALSE) +
+  labs(title = "How much of an obstacle? - Hot days", x = "Category (Reference: No)", y = "Coefficient") +
+  theme_grey(base_size=15) +
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggplot(obstacle[13:24,], aes(category, coef)) + 
+  geom_hline(yintercept=0, lty=2, lwd=1, colour="grey50") +
+  geom_errorbar(aes(ymin=ci_lower, ymax=ci_upper, colour=category), 
+                lwd=1, width=0) +
+  geom_point(size=3, aes(colour=category)) +
+  facet_grid(. ~ vars) +
+  coord_flip() +
+  guides(colour=FALSE) +
+  labs(title = "How much of an obstacle? - Hot days", x = "Category (Reference: No)", y = "Coefficient") +
+  theme_grey(base_size=15) +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
