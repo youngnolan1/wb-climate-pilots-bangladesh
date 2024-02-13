@@ -21,19 +21,19 @@ library(ggplot2)
 # ADJUST FILE PATH HERE
 # Run scripts which clean data and create plotting functions
 setwd("C:/Users/young/OneDrive/Escritorio/wb-climate-pilots-bangladesh")
-source("scripts/2_firm_data_clean.R")
+source("scripts/firm_climate_dashboard/2_firm_data_clean.R")
 
 setwd("C:/Users/young/OneDrive/Escritorio/wb-climate-pilots-bangladesh")
-source("scripts/3_climate_data_clean.R")
+source("scripts/firm_climate_dashboard/3_climate_data_clean.R")
 
 setwd("C:/Users/young/OneDrive/Escritorio/wb-climate-pilots-bangladesh")
-source("scripts/4_SMI19_business_directory_map.R")
+source("scripts/firm_climate_dashboard/4_SMI19_business_directory_map.R")
 
 setwd("C:/Users/young/OneDrive/Escritorio/wb-climate-pilots-bangladesh")
-source("scripts/5_naturaldisaster_data_clean.R")
+source("scripts/firm_climate_dashboard/5_naturaldisaster_data_clean.R")
 
 setwd("C:/Users/young/OneDrive/Escritorio/wb-climate-pilots-bangladesh")
-source("scripts/SEZ_data_clean.R")
+source("scripts/firm_climate_dashboard/SEZ_data_clean.R")
 ```
 
 
@@ -101,37 +101,50 @@ Column {.tabset .tabset-fade data-width=500}
 ```{r}
 legend_title <- "Difference in weighted avg"
 
-heatplot_climate(sf_hotdays, "% Change in Average Yearly Number of Hot Days\nPre (2000-10) to Current (2011-21) Period", legend_title)
+heatplot_climate(sf_hotdays, "Difference in Average Yearly Number of Hot Days\nPre (2000-10) to Current (2011-21) Period", legend_title)
 ```
+
+### Hot Days Volatility
+
+```{r}
+heatplot_climate(sf_hotdays_volatility, "Difference in Average Yearly St Dev of Hot Days\nPre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
 
 ### SPEI
 
 ```{r}
-heatplot_climate(sf_spei, "% Change in Average Yearly SPEI\nPre (2000-10) to Current (2011-21) Period", legend_title)
+heatplot_climate(sf_spei, "Difference in Average Yearly SPEI\nPre (2000-10) to Current (2011-21) Period", legend_title)
 ```
 
 ### Consecutive Wet Days (5mm)
 
 ```{r}
-heatplot_climate(sf_cwd, "% Change in Average Yearly Maximum of\nConsecutive Wet Days - Pre (2000-10) to Current (2011-21) Period", legend_title)
+heatplot_climate(sf_cwd, "Difference in Average Yearly Maximum of\nConsecutive Wet Days - Pre (2000-10) to Current (2011-21) Period", legend_title)
 ```
 
 ### Precipitation
 
 ```{r}
-heatplot_climate(sf_precip, "% Change in Average Yearly Precipitation\nPre (2000-10) to Current (2011-21) Period", legend_title)
+heatplot_climate(sf_precip, "Difference in Average Yearly Precipitation\nPre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### Precipitation Volatility
+
+```{r}
+heatplot_climate(sf_precip_volatility, "Difference in Average Yearly St Dev of Precipitation\nPre (2000-10) to Current (2011-21) Period", legend_title)
 ```
 
 ### Dry Days
 
 ```{r}
-heatplot_climate(sf_drydays, "% Change in Average Yearly Number of Dry Days\nPre (2000-10) to Current (2011-21) Period", legend_title)
+heatplot_climate(sf_drydays, "Difference in Average Yearly Number of Dry Days\nPre (2000-10) to Current (2011-21) Period", legend_title)
 ```
 
 ### Consecutive Dry Days (1mm)
 
 ```{r}
-heatplot_climate(sf_cdd, "% Change in Average Yearly Maximum of\nConsecutive Dry Days - Pre (2000-10) to Current (2011-21) Period", legend_title)
+heatplot_climate(sf_cdd, "Difference in Average Yearly Maximum of\nConsecutive Dry Days - Pre (2000-10) to Current (2011-21) Period", legend_title)
 ```
 
 ### Firms facing water availability issues
@@ -192,37 +205,49 @@ Column {.tabset .tabset-fade data-width=500}
 ```{r}
 legend_title <- "Difference in weighted avg"
 
-heatplot_climate(sf_hotdays, "% Change in Average Yearly Number of Hot Days\nPre (2000-10) to Current (2011-21) Period", legend_title)
+heatplot_climate(sf_hotdays, "Difference in Average Yearly Number of Hot Days\nPre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### Hot Days Volatility
+
+```{r}
+heatplot_climate(sf_hotdays_volatility, "Difference in Average Yearly St Dev of Hot Days\nPre (2000-10) to Current (2011-21) Period", legend_title)
 ```
 
 ### SPEI
 
 ```{r}
-heatplot_climate(sf_spei, "% Change in Average Yearly SPEI\nPre (2000-10) to Current (2011-21) Period", legend_title)
+heatplot_climate(sf_spei, "Difference in Average Yearly SPEI\nPre (2000-10) to Current (2011-21) Period", legend_title)
 ```
 
 ### Consecutive Wet Days (5mm)
 
 ```{r}
-heatplot_climate(sf_cwd, "% Change in Average Yearly Maximum of\nConsecutive Wet Days - Pre (2000-10) to Current (2011-21) Period", legend_title)
+heatplot_climate(sf_cwd, "Difference in Average Yearly Maximum of\nConsecutive Wet Days - Pre (2000-10) to Current (2011-21) Period", legend_title)
 ```
 
 ### Precipitation
 
 ```{r}
-heatplot_climate(sf_precip, "% Change in Average Yearly Precipitation\nPre (2000-10) to Current (2011-21) Period", legend_title)
+heatplot_climate(sf_precip, "Difference in Average Yearly Precipitation\nPre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### Precipitation Volatility
+
+```{r}
+heatplot_climate(sf_precip_volatility, "Difference in Average Yearly St Dev of Precipitation\nPre (2000-10) to Current (2011-21) Period", legend_title)
 ```
 
 ### Dry Days
 
 ```{r}
-heatplot_climate(sf_drydays, "% Change in Average Yearly Number of Dry Days\nPre (2000-10) to Current (2011-21) Period", legend_title)
+heatplot_climate(sf_drydays, "Difference in Average Yearly Number of Dry Days\nPre (2000-10) to Current (2011-21) Period", legend_title)
 ```
 
 ### Consecutive Dry Days (1mm)
 
 ```{r}
-heatplot_climate(sf_cdd, "% Change in Average Yearly Maximum of\nConsecutive Dry Days - Pre (2000-10) to Current (2011-21) Period", legend_title)
+heatplot_climate(sf_cdd, "Difference in Average Yearly Maximum of\nConsecutive Dry Days - Pre (2000-10) to Current (2011-21) Period", legend_title)
 ```
 
 ### Firms facing water availability issues
@@ -309,37 +334,49 @@ Column {.tabset .tabset-fade data-width=500}
 ```{r}
 legend_title <- "Difference in weighted avg"
 
-heatplot_climate(sf_hotdays, "% Change in Average Yearly Number of Hot Days\nPre (2000-10) to Current (2011-21) Period", legend_title)
+heatplot_climate(sf_hotdays, "Difference in Average Yearly Number of Hot Days\nPre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### Hot Days Volatility
+
+```{r}
+heatplot_climate(sf_hotdays_volatility, "Difference in Average Yearly St Dev of Hot Days\nPre (2000-10) to Current (2011-21) Period", legend_title)
 ```
 
 ### SPEI
 
 ```{r}
-heatplot_climate(sf_spei, "% Change in Average Yearly SPEI\nPre (2000-10) to Current (2011-21) Period", legend_title)
+heatplot_climate(sf_spei, "Difference in Average Yearly SPEI\nPre (2000-10) to Current (2011-21) Period", legend_title)
 ```
 
 ### Consecutive Wet Days (5mm)
 
 ```{r}
-heatplot_climate(sf_cwd, "% Change in Average Yearly Maximum of\nConsecutive Wet Days - Pre (2000-10) to Current (2011-21) Period", legend_title)
+heatplot_climate(sf_cwd, "Difference in Average Yearly Maximum of\nConsecutive Wet Days - Pre (2000-10) to Current (2011-21) Period", legend_title)
 ```
 
 ### Precipitation
 
 ```{r}
-heatplot_climate(sf_precip, "% Change in Average Yearly Precipitation\nPre (2000-10) to Current (2011-21) Period", legend_title)
+heatplot_climate(sf_precip, "Difference in Average Yearly Precipitation\nPre (2000-10) to Current (2011-21) Period", legend_title)
+```
+
+### Precipitation Volatility
+
+```{r}
+heatplot_climate(sf_precip_volatility, "Difference in Average Yearly St Dev of Precipitation\nPre (2000-10) to Current (2011-21) Period", legend_title)
 ```
 
 ### Dry Days
 
 ```{r}
-heatplot_climate(sf_drydays, "% Change in Average Yearly Number of Dry Days\nPre (2000-10) to Current (2011-21) Period", legend_title)
+heatplot_climate(sf_drydays, "Difference in Average Yearly Number of Dry Days\nPre (2000-10) to Current (2011-21) Period", legend_title)
 ```
 
 ### Consecutive Dry Days (1mm)
 
 ```{r}
-heatplot_climate(sf_cdd, "% Change in Average Yearly Maximum of\nConsecutive Dry Days - Pre (2000-10) to Current (2011-21) Period", legend_title)
+heatplot_climate(sf_cdd, "Difference in Average Yearly Maximum of\nConsecutive Dry Days - Pre (2000-10) to Current (2011-21) Period", legend_title)
 ```
 
 ### Firms facing water availability issues
